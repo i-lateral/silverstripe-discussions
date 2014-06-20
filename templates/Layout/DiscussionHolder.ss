@@ -30,10 +30,6 @@
             <div class="discussions">
                 <% loop $ViewableDiscussions %>
                     <div class="discussion units-row">
-                        <div class="avatar unit-20">
-                            $Author.Avatar.CroppedImage(95,95)
-                        </div>
-
                         <div class="discussion-content unit-80">
                             <h2>
                                 <a href="{$Top.Link('view')}/{$ID}">$Title</a>
@@ -49,8 +45,18 @@
                                 <% end_if %>
                             </h2>
 
+                            <% if $Author.Avatar %>
+                                <img
+                                    class="avatar"
+                                    style="float: left; margin: 0 1em 1em 0;"
+                                    src="$Author.Avatar.CroppedImage(75,75).URL"
+                                    alt="Avatar for {$Author.Nickname}"
+                                    title="Avatar for {$Author.Nickname}"
+                                />
+                            <% end_if %>
+
                             <p>
-                                $Content.Summary(25)
+                                $Content.Summary(50)
                             </p>
 
                             <p>
