@@ -32,9 +32,12 @@
                 />
             <% end_if %>
 
+            <p>$Content</p>
+
             <p>
+                <%t Discussions.PostedBy "Posted by" %>
                 <strong>$Author.Nickname</strong>
-                $Created.Ago |
+                $Created.Ago;
 
                 <% if $LikedBy.Count %>
                     $LikedBy.Count
@@ -52,10 +55,6 @@
                     <% _t("Discussions.Comments", "Comments") %>;
                 <% end_if %>
             </p>
-
-            <% if $Content %>
-                <p>$Content</p>
-            <% end_if %>
 
             <p>
                  <% if $TagsCollection.exists %>
