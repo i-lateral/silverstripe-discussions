@@ -4,7 +4,16 @@
  * Page type responsible for holding "discussions" and their comments
  *
  */
-class DiscussionHolder extends Page {
+class DiscussionHolder extends Page implements PermissionProvider {
+
+    /**
+     * Default sender address for notification emails, if not set, use
+     * Email.admin_email instead
+     *
+     * @config
+     */
+    private static $send_email_from;
+
     private static $icon = "discussions/images/speechbubble.png";
 
     private static $db = array();
@@ -84,6 +93,23 @@ class DiscussionHolder extends Page {
         return $fields;
     }
 
+    public function providePermissions() {
+        return array(
+            'DISCUSSIONS_REPLY' => array(
+                'name'      => 'Reply to discussions',
+                'help'      => 'Reply to existing discussions created by users',
+                'category'  => 'Discussions',
+                'sort'      => 90
+            ),
+            'DISCUSSIONS_MODERATION' => array(
+                'name'      => 'Moderate discussions',
+                'help'      => 'Moderate discussions created by users',
+                'category'  => 'Discussions',
+                'sort'      => 100
+            ),
+        );
+    }
+
     public function requireDefaultRecords() {
         parent::requireDefaultRecords();
 
@@ -103,6 +129,9 @@ class DiscussionHolder extends Page {
 
     public function canStartDiscussions($member = null) {
         if(!$member) $member = Member::currentUser();
+
+        if(!$member)
+            return false;
 
         // If admin, return true
         if(Permission::check("ADMIN"))

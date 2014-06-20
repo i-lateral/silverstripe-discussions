@@ -8,10 +8,6 @@
 <div class="units-row">
     <div class="site-content typography <% if $SideBarView %>unit-75<% end_if %>">
         <% with $Discussion %>
-            <div class="avatar unit-20">
-                $Author.Avatar.CroppedImage(95,95)
-            </div>
-
             <h1>
                 $Title
                 <% if $Liked %>
@@ -26,24 +22,34 @@
                 <% end_if %>
             </h1>
 
+            <% if $Author.Avatar %>
+                <img
+                    class="avatar"
+                    style="float: left; margin: 0 1em 1em 0;"
+                    src="$Author.Avatar.CroppedImage(75,75).URL"
+                    alt="Avatar for {$Author.Nickname}"
+                    title="Avatar for {$Author.Nickname}"
+                />
+            <% end_if %>
+
             <p>
-                <strong>$Author.FirstName $Author.Surname</strong>
+                <strong>$Author.Nickname</strong>
                 $Created.Ago |
 
                 <% if $LikedBy.Count %>
                     $LikedBy.Count
                     <% if $LikedBy.Count == 1 %>
-                        Like;
+                        <% _t("Discussions.Like", "Like") %>;
                     <% else %>
-                        Likes;
+                        <% _t("Discussions.Likes", "Likes") %>;
                     <% end_if %>
                 <% end_if %>
 
                 $Comments.Count
                 <% if $Comments.Count == 1 %>
-                    Comment;
+                    <% _t("Discussions.Comment", "Comment") %>;
                 <% else %>
-                    Comments;
+                    <% _t("Discussions.Comments", "Comments") %>;
                 <% end_if %>
             </p>
 

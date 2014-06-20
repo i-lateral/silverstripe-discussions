@@ -46,9 +46,22 @@ class DiscussionsUsersController extends Extension {
     public function NotificationForm() {
         $fields = FieldList::create(
             HiddenField::create("ID"),
-            CheckboxField::create("RecieveCommentEmails", _t("Discussions.RecieveCommentEmails","Recieve emails when one of my discussions is replied to")),
-            CheckboxField::create("ReveiveNewDiscussionEmails", _t("Discussions.ReveiveNewDiscussionEmails","Recieve emails when a new discussion is started")),
-            CheckboxField::create("ReveiveLikedEmails", _t("Discussions.ReveiveLikedEmails","Recieve emails when a discussion I like is replied to"))
+            CheckboxField::create(
+                "RecieveCommentEmails",
+                _t("Discussions.RecieveCommentEmails","Recieve emails when one of my discussions is replied to")
+            ),
+            CheckboxField::create(
+                "RecieveNewDiscussionEmails",
+                _t("Discussions.ReveiveNewDiscussionEmails","Recieve emails when a new discussion is started")
+            ),
+            CheckboxField::create(
+                "RecieveLikedEmails",
+                _t("Discussions.ReveiveLikedEmails","Recieve emails when one of my discussions is liked")
+            ),
+            CheckboxField::create(
+                "RecieveLikedReplyEmails",
+                _t("Discussions.ReveiveLikedReplyEmails","Recieve emails when a discussion I like is replied to")
+            )
         );
 
         $actions = FieldList::create(

@@ -1,6 +1,6 @@
 <?php
 
-class Discussion extends DataObject implements PermissionProvider {
+class Discussion extends DataObject {
     private static $db = array(
         "Title"     => "Varchar(99)",
         "Content"   => "Text",
@@ -32,6 +32,13 @@ class Discussion extends DataObject implements PermissionProvider {
         "Reported"      => "Boolean"
     );
 
+    public function Link($action = null) {
+        return Controller::join_links(
+            $this->Parent()->Link($action),
+            $this->ID
+        );
+    }
+
     /**
      * Determine if this discussion has been liked by the current user
      *
@@ -58,17 +65,6 @@ class Discussion extends DataObject implements PermissionProvider {
             return true;
         else
             return false;
-    }
-
-    public function providePermissions() {
-        return array(
-            'DISCUSSIONS_MODERATION' => array(
-                'name'      => 'Moderate discussions',
-                'help'      => 'Moderate discussions created by users',
-                'category'  => 'Discussions',
-                'sort'      => 100
-            ),
-        );
     }
 
     /**
@@ -105,6 +101,72 @@ class Discussion extends DataObject implements PermissionProvider {
         }
 
         return $return;
+    }
+
+    /**
+     * Overwrite the default comments form so we can tweak a bit
+     *
+     * @see docs/en/Extending
+     */
+    public function CommentsForm() {
+        if(Commenting::has_commenting($this->ownerBaseClass) && Commenting::get_config_value($this->ownerBaseClass, 'include_js')) {
+            Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+            Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/lib/jquery.form.js');
+            Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/jquery.validate.pack.js');
+            Requirements::javascript('comments/javascript/CommentsInterface.js');
+        }
+
+        $interface = new SSViewer('DiscussionsCommentsInterface');
+        $enabled = (!$this->attachedToSiteTree() || $this->owner->ProvideComments) ? true : false;
+
+        // do not include the comments on pages which don't have id's such as security pages
+        if($this->owner->ID < 0) return false;
+
+        $controller = new CommentingController();
+        $controller->setOwnerRecord($this);
+        $controller->setBaseClass($this->ClassName);
+        $controller->setOwnerController(Controller::curr());
+
+        $moderatedSubmitted = Session::get('CommentsModerated');
+        Session::clear('CommentsModerated');
+
+        // Tweak the comments form a bit, so it is more user friendly
+        if($enabled) {
+            $form = $controller->CommentsForm();
+
+            $form->Fields()->removeByName("Comment");
+
+            $comment_field = TextareaField::create("Comment", "")
+                ->setCustomValidationMessage(_t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'))
+                ->setAttribute('data-message-required', _t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'));
+
+            if($form->Fields()->dataFieldByName("NameView")) {
+                $form
+                    ->Fields()
+                    ->insertBefore($comment_field, "NameView");
+            } else {
+                $form
+                    ->Fields()
+                    ->insertBefore($comment_field, "Name");
+            }
+
+        } else
+            $form = false;
+
+        // a little bit all over the show but to ensure a slightly easier upgrade for users
+        // return back the same variables as previously done in comments
+        return $interface->process(new ArrayData(array(
+            'CommentHolderID'           => Commenting::get_config_value($this->ClassName, 'comments_holder_id'),
+            'PostingRequiresPermission' => Commenting::get_config_value($this->ClassName, 'required_permission'),
+            'CanPost'                   => Commenting::can_member_post($this->ClassName),
+            'RssLink'                   => "CommentingController/rss",
+            'RssLinkPage'               => "CommentingController/rss/". $this->ClassName . '/'.$this->ID,
+            'CommentsEnabled'           => $enabled,
+            'Parent'                    => $this,
+            'AddCommentForm'            => $form,
+            'ModeratedSubmitted'        => $moderatedSubmitted,
+            'Comments'                  => $this->getComments()
+        )));
     }
 
     public function canEdit($member = null) {
@@ -150,17 +212,24 @@ class Discussion extends DataObject implements PermissionProvider {
     }
 
     /**
+     * Check if members who liked this would like a notification
+     */
+    public function onBeforeWrite() {
+        parent::onBeforeWrite();
+
+        foreach($this->LikedBy() as $member) {
+
+        }
+    }
+
+    /**
      * Perform database cleanup when deleting
      */
     public function onBeforeDelete() {
         parent::onBeforeDelete();
 
-        foreach($this->Comments() as $comment) {
+        foreach($this->getComments() as $comment) {
             $comment->delete();
-        }
-
-        foreach($this->Files() as $file) {
-            $file->delete();
         }
     }
 }

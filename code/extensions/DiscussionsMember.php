@@ -2,11 +2,12 @@
 
 class DiscussionsMember extends DataExtension {
     private static $db = array(
-        "RecieveCommentEmails"  => "Boolean",
-        "ReveiveNewDiscussionEmails" => "Boolean",
-        "ReveiveLikedEmails"    => "Boolean",
-        "Nickname"              => "Varchar",
-        "URL"                   => "Varchar(200)"
+        "Nickname"                  => "Varchar",
+        "URL"                       => "Varchar(200)",
+        "RecieveCommentEmails"      => "Boolean",
+        "RecieveNewDiscussionEmails"=> "Boolean",
+        "RecieveLikedReplyEmails"   => "Boolean",
+        "RecieveLikedEmails"        => "Boolean"
     );
 
     private static $has_one = array(
@@ -24,7 +25,7 @@ class DiscussionsMember extends DataExtension {
 
     private static $defaults = array(
         "RecieveCommentEmails"  => 1,
-        "ReveiveNewDiscussionEmails" => 0,
+        "RecieveNewDiscussionEmails" => 0,
         "RecieveLikedEmails"    => 1
     );
 

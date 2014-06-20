@@ -2,7 +2,9 @@
 
 // Add commenting to discussions
 Commenting::add('Discussion', array(
-    'require_login' => true, // boolean, whether a user needs to login
+    "require_login" => true,
+    "required_permission" => "DISCUSSIONS_REPLY",
+    "order_comments_by" => "\"Created\" ASC",
 ));
 
 Object::add_extension("Member", "DiscussionsMember");
