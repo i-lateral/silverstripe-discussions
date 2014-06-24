@@ -20,7 +20,8 @@
         "silverstripe/comments": "*",
         "i-lateral/silverstripe-sessionmessenger": "*",
         "i-lateral/silverstripe-users": "*",
-        "colymba/gridfield-bulk-editing-tools": "dev-master"
+        "colymba/gridfield-bulk-editing-tools": "*",
+        "ajshort/silverstripe-gridfieldextensions": "*"
     },
     "suggest": {
         "silverstripe/widgets": "Add widget area support to your discussion pages"
