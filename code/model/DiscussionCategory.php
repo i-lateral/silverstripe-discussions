@@ -7,7 +7,8 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package Discussions
  */
-class DiscussionCategory extends DataObject {
+class DiscussionCategory extends DataObject
+{
     private static $db = array(
         "Title"         => "Varchar",
         "URLSegment"    => "Varchar"
@@ -28,14 +29,16 @@ class DiscussionCategory extends DataObject {
 
     private static $default_sort = "Title ASC";
 
-    public function Link() {
+    public function Link()
+    {
         return Controller::join_links(
             $this->Parent()->Link("category"),
             $this->URLSegment
         );
     }
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
 
         $fields->removeByName("ParentID");
@@ -43,25 +46,30 @@ class DiscussionCategory extends DataObject {
         return $fields;
     }
 
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
 
         $this->URLSegment = ($this->URLSegment) ? $this->URLSegment : Convert::raw2url($this->Title);
     }
 
-    public function canView($member = null) {
+    public function canView($member = null)
+    {
         return true;
     }
 
-    public function canEdit($member = null) {
+    public function canEdit($member = null)
+    {
         return $this->Parent()->canEdit($member);
     }
 
-    public function canDelete($member = null) {
+    public function canDelete($member = null)
+    {
         return $this->Parent()->canDelete($member);
     }
 
-    public function canCreate($member = null) {
+    public function canCreate($member = null)
+    {
         return $this->Parent()->canCreate($member);
     }
 }

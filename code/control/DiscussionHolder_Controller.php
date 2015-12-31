@@ -1,6 +1,7 @@
 <?php
 
-class DiscussionHolder_Controller extends Page_Controller {
+class DiscussionHolder_Controller extends Page_Controller
+{
     public static $allowed_actions = array(
         'discussionForm',
         'my',
@@ -21,13 +22,15 @@ class DiscussionHolder_Controller extends Page_Controller {
      *
      * @return string
      */
-    public function getTag() {
+    public function getTag()
+    {
         if ($this->request->param('Action') == 'tag') {
             $tag = $this->request->param('ID');
-            $tag = ucwords(str_replace("-"," ",urldecode($tag)));
+            $tag = ucwords(str_replace("-", " ", urldecode($tag)));
             return Convert::raw2xml($tag);
-        } else
+        } else {
             return "";
+        }
     }
 
     /**
@@ -35,15 +38,17 @@ class DiscussionHolder_Controller extends Page_Controller {
      *
      * @return string
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         if ($this->request->param('Action') == 'category') {
             $id = $this->request->param('ID');
             return $this
                 ->Categories()
-                ->filter("URLSegment",$id)
+                ->filter("URLSegment", $id)
                 ->first();
-        } else
+        } else {
             return "";
+        }
     }
 
     /**
@@ -52,15 +57,17 @@ class DiscussionHolder_Controller extends Page_Controller {
      *
      * @return string
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         $action = $this->request->param('Action');
 
-        if($action == "liked")
+        if ($action == "liked") {
             return _t("Discussions.LikedTitle", "Discussions I have liked");
-        elseif($action == "my")
+        } elseif ($action == "my") {
             return _t("Discussions.MyTitle", "Discussions I have started");
-        else
+        } else {
             return $this->data()->Title;
+        }
     }
 
     /**
@@ -72,40 +79,42 @@ class DiscussionHolder_Controller extends Page_Controller {
      *
      * @return DataList
      */
-    public function ViewableDiscussions() {
+    public function ViewableDiscussions()
+    {
         $tag = $this->getTag();
         $category = $this->getCategory();
         $member = Member::currentUser();
         $discussions_to_view = new ArrayList();
 
-        if($tag) {
+        if ($tag) {
             $SQL_tag = Convert::raw2sql($tag);
 
             $discussions = Discussion::get()
-                ->filter("ParentID",$this->ID)
+                ->filter("ParentID", $this->ID)
                 ->where("\"Discussion\".\"Tags\" LIKE '%$SQL_tag%'");
-        } elseif($category) {
+        } elseif ($category) {
             $discussions = Discussion::get()
                 ->filter(array(
                     "ParentID" => $this->ID,
                     "Categories.ID:ExactMatch" => $category->ID
                 ));
-        } elseif($this->request->param('Action') == 'liked') {
+        } elseif ($this->request->param('Action') == 'liked') {
             $discussions = $member
                 ->LikedDiscussions();
-        }  elseif($this->request->param('Action') == 'my') {
+        } elseif ($this->request->param('Action') == 'my') {
             $discussions = Discussion::get()
                 ->filter(array(
                     "ParentID" => $this->ID,
                     "AuthorID" => $member->ID
                 ));
-        }  else {
+        } else {
             $discussions = $this->Discussions();
         }
 
-        foreach($discussions as $discussion) {
-            if($discussion->canView($member))
+        foreach ($discussions as $discussion) {
+            if ($discussion->canView($member)) {
                 $discussions_to_view->add($discussion);
+            }
         }
 
         $this->extend("updateViewableDiscussions", $discussions_to_view);
@@ -117,7 +126,8 @@ class DiscussionHolder_Controller extends Page_Controller {
      * Start a new discussion
      *
      */
-    public function start() {
+    public function start()
+    {
         $startForm = $this
             ->discussionForm()
             ->addExtraClass('forms');
@@ -132,11 +142,12 @@ class DiscussionHolder_Controller extends Page_Controller {
     /**
      * Edit an existing discussion
      */
-    public function edit() {
+    public function edit()
+    {
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if($discussion && $discussion->canEdit($member)) {
+        if ($discussion && $discussion->canEdit($member)) {
             $startForm = $this
                 ->discussionForm($discussion)
                 ->addExtraClass('forms');
@@ -146,19 +157,21 @@ class DiscussionHolder_Controller extends Page_Controller {
             );
 
             return $this->customise($vars);
-        } else
+        } else {
             return $this->redirect($this->Link());
+        }
     }
 
     /**
      * View a particular discussion by ID, if the user has the rights to do so
      *
      */
-    public function view() {
+    public function view()
+    {
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if($discussion && $discussion->canView($member)) {
+        if ($discussion && $discussion->canView($member)) {
             $date = new SS_Datetime();
 
             $vars = array("Discussion"  => $discussion);
@@ -166,20 +179,22 @@ class DiscussionHolder_Controller extends Page_Controller {
             $this->extend("updateViewVars", $vars);
 
             return $this->customise($vars);
-        } else
+        } else {
             return $this->redirect($this->Link());
+        }
     }
 
     /**
      * Remove a particular discussion by ID, if the user has the rights to do so
      *
      */
-    public function remove() {
+    public function remove()
+    {
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if($discussion && $discussion->canView($member)) {
-            $this->setSessionMessage('message', _t("Discussions.Deleted","Deleted") . " '{$discussion->Title}'");
+        if ($discussion && $discussion->canView($member)) {
+            $this->setSessionMessage('message', _t("Discussions.Deleted", "Deleted") . " '{$discussion->Title}'");
             $discussion->delete();
         }
 
@@ -191,11 +206,12 @@ class DiscussionHolder_Controller extends Page_Controller {
      * is associated with a discussion object and the user that reported it.
      *
      */
-    public function report() {
+    public function report()
+    {
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if($discussion && $discussion->canView($member)) {
+        if ($discussion && $discussion->canView($member)) {
             $report = new ReportedDiscussion();
             $report->DiscussionID = $discussion->ID;
             $report->ReporterID = $member->ID;
@@ -204,7 +220,7 @@ class DiscussionHolder_Controller extends Page_Controller {
             $discussion->Reports()->add($report);
             $discussion->write();
 
-            $this->setSessionMessage('message', _t("Discussions.Reported","Reported") . " '{$discussion->Title}'");
+            $this->setSessionMessage('message', _t("Discussions.Reported", "Reported") . " '{$discussion->Title}'");
         }
 
         return $this->redirect(Controller::join_links(
@@ -217,23 +233,25 @@ class DiscussionHolder_Controller extends Page_Controller {
      * Like a particular discussion by ID
      *
      */
-    public function like() {
+    public function like()
+    {
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if($discussion && $discussion->canView($member)) {
-            $this->setSessionMessage("message good", _t("Discussions.Liked","Liked") . " '{$discussion->Title}'");
+        if ($discussion && $discussion->canView($member)) {
+            $this->setSessionMessage("message good", _t("Discussions.Liked", "Liked") . " '{$discussion->Title}'");
             $member->LikedDiscussions()->add($discussion);
             $member->write();
 
             $author = $discussion->Author();
 
             // Send a notification (if the author wants it)
-            if($author && $author->RecieveLikedEmails && $author->Email && ($member->ID != $author->ID)) {
-                if(DiscussionHolder::config()->send_email_from)
+            if ($author && $author->RecieveLikedEmails && $author->Email && ($member->ID != $author->ID)) {
+                if (DiscussionHolder::config()->send_email_from) {
                     $from = DiscussionHolder::config()->send_email_from;
-                else
+                } else {
                     $from = Email::config()->admin_email;
+                }
 
                 $subject = _t(
                     "Discussions.LikedDiscussionSubject",
@@ -267,16 +285,17 @@ class DiscussionHolder_Controller extends Page_Controller {
      * Block a particular member by ID.
      *
      */
-    public function block() {
+    public function block()
+    {
         $member = Member::currentUser();
         $block = Member::get()->byID($this->request->param("ID"));
 
-        if($block) {
+        if ($block) {
             $member->BlockedMembers()->add($block);
             $member->write();
             $block->write();
 
-            $this->setSessionMessage("message bad", _t("Discussions.Blocked","Blocked") . " '{$block->FirstName} {$block->Surname}'");
+            $this->setSessionMessage("message bad", _t("Discussions.Blocked", "Blocked") . " '{$block->FirstName} {$block->Surname}'");
         }
 
         return $this->redirectBack();
@@ -287,13 +306,15 @@ class DiscussionHolder_Controller extends Page_Controller {
      *
      * @return DiscussionForm
      */
-    public function discussionForm($discussion = null) {
+    public function discussionForm($discussion = null)
+    {
         $form = DiscussionForm::create($this, 'discussionForm', $discussion);
 
-        if($this->request->isPOST())
+        if ($this->request->isPOST()) {
             $form->loadDataFrom($this->request->postVars());
-        elseif($discussion != null && $discussion instanceof Discussion)
+        } elseif ($discussion != null && $discussion instanceof Discussion) {
             $form->loadDataFrom($discussion);
+        }
 
         // Extension API
         $this->extend("updateDiscussionForm", $form);

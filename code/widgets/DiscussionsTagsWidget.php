@@ -1,13 +1,14 @@
 <?php
 
-if(class_exists('Widget')) {
+if (class_exists('Widget')) {
 
     /**
      * A list of tags associated with discussions
      *
      * @package discussionforum
      */
-    class DiscussionsTagsWidget extends Widget {
+    class DiscussionsTagsWidget extends Widget
+    {
 
         public static $db = array(
             "Title"     => "Varchar",
@@ -25,7 +26,8 @@ if(class_exists('Widget')) {
         public static $cmsTitle = "Discussion Tags";
         public static $description = "Shows list of tags associated with discussion posts";
 
-        public function getCMSFields() {
+        public function getCMSFields()
+        {
             $fields = parent::getCMSFields();
 
             $fields->merge(
@@ -42,37 +44,40 @@ if(class_exists('Widget')) {
             return $fields;
         }
 
-        public function Title() {
+        public function Title()
+        {
             return $this->Title ? $this->Title : "Discussion Tags";
         }
 
-        public function getTagsCollection() {
+        public function getTagsCollection()
+        {
             $allTags = new ArrayList();
             $max = 0;
             $member = Member::currentUser();
 
             // Find if we need to filter tags by current discussion page
             $controller = Controller::curr();
-            if(method_exists($controller, "data"))
+            if (method_exists($controller, "data")) {
                 $page = $controller->data();
-            else
+            } else {
                 $page = null;
+            }
 
-            if ($page != null && $page instanceof DiscussionPage)
+            if ($page != null && $page instanceof DiscussionPage) {
                 $discussions = $page->Discussions();
-            else {
+            } else {
                 $discussions = Discussion::get();
             }
 
-            if($discussions) {
-                foreach($discussions as $discussion) {
-                    if($discussion->canView($member)) {
+            if ($discussions) {
+                foreach ($discussions as $discussion) {
+                    if ($discussion->canView($member)) {
                         $theseTags = preg_split(" *, *", trim($discussion->Tags));
 
-                        foreach($theseTags as $tag) {
-                            if($tag) {
-                                if($allTags->find("Tag",$tag)) {
-                                    $allTags->find("Tag",$tag)->Count++;
+                        foreach ($theseTags as $tag) {
+                            if ($tag) {
+                                if ($allTags->find("Tag", $tag)) {
+                                    $allTags->find("Tag", $tag)->Count++;
                                 } else {
                                     $allTags->push(new ArrayData(array(
                                         "Tag"   => $tag,
@@ -84,19 +89,21 @@ if(class_exists('Widget')) {
                                     )));
                                 }
 
-                                $tag_count = $allTags->find("Tag",$tag)->Count;
+                                $tag_count = $allTags->find("Tag", $tag)->Count;
                                 $max = ($tag_count > $max) ? $tag_count : $max;
                             }
                         }
                     }
                 }
 
-                if($allTags->exists()) {
+                if ($allTags->exists()) {
                     // First sort our tags
                     $allTags->sort($this->SortParam, $this->SortOrder);
 
                     // Now if a limit has been set, limit the list
-                    if($this->Limit) $allTags = $allTags->limit($this->Limit);
+                    if ($this->Limit) {
+                        $allTags = $allTags->limit($this->Limit);
+                    }
                 }
 
                 return $allTags;
@@ -104,6 +111,5 @@ if(class_exists('Widget')) {
 
             return;
         }
-
     }
 }

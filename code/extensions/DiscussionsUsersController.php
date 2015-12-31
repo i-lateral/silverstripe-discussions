@@ -6,21 +6,23 @@
  * @author i-lateral (http://www.i-lateral.com)
  * @package discussions
  */
-class DiscussionsUsersController extends Extension {
+class DiscussionsUsersController extends Extension
+{
 
     private static $allowed_actions = array(
         "notificationsettings",
         "NotificationForm"
     );
 
-    public function notificationsettings() {
+    public function notificationsettings()
+    {
         $member = Member::currentUser();
 
         $this
             ->owner
             ->customise(array(
                 "ClassName" => "AccountPage",
-                "Title" => _t('Discussions.NotificationSettings','Notification Settings'),
+                "Title" => _t('Discussions.NotificationSettings', 'Notification Settings'),
                 "Form"  => $this->owner->NotificationForm()->loadDataFrom($member)
             ));
 
@@ -43,24 +45,25 @@ class DiscussionsUsersController extends Extension {
      *
      * @return Form
      */
-    public function NotificationForm() {
+    public function NotificationForm()
+    {
         $fields = FieldList::create(
             HiddenField::create("ID"),
             CheckboxField::create(
                 "RecieveCommentEmails",
-                _t("Discussions.RecieveCommentEmails","Recieve emails when one of my discussions is replied to")
+                _t("Discussions.RecieveCommentEmails", "Recieve emails when one of my discussions is replied to")
             ),
             CheckboxField::create(
                 "RecieveNewDiscussionEmails",
-                _t("Discussions.ReveiveNewDiscussionEmails","Recieve emails when a new discussion is started")
+                _t("Discussions.ReveiveNewDiscussionEmails", "Recieve emails when a new discussion is started")
             ),
             CheckboxField::create(
                 "RecieveLikedEmails",
-                _t("Discussions.ReveiveLikedEmails","Recieve emails when one of my discussions is liked")
+                _t("Discussions.ReveiveLikedEmails", "Recieve emails when one of my discussions is liked")
             ),
             CheckboxField::create(
                 "RecieveLikedReplyEmails",
-                _t("Discussions.ReveiveLikedReplyEmails","Recieve emails when a discussion I like is replied to")
+                _t("Discussions.ReveiveLikedReplyEmails", "Recieve emails when a discussion I like is replied to")
             )
         );
 
@@ -69,12 +72,12 @@ class DiscussionsUsersController extends Extension {
                 "CancelLink",
                 '<a href="' . $this->owner->Link() . '" class="btn btn-red">'. _t("Users.CANCEL", "Cancel") .'</a>'
             ),
-            FormAction::create("doSaveNotificationSettings", _t("Discussions.Save","Save"))
+            FormAction::create("doSaveNotificationSettings", _t("Discussions.Save", "Save"))
                 ->addExtraClass("btn")
                 ->addExtraClass("btn-green")
         );
 
-        $form = Form::create($this->owner,"NotificationForm", $fields, $actions);
+        $form = Form::create($this->owner, "NotificationForm", $fields, $actions);
 
         $this
             ->owner
@@ -89,26 +92,28 @@ class DiscussionsUsersController extends Extension {
      * @param array $data User submitted data
      * @param Form $form The used form
      */
-    function doSaveNotificationSettings($data, $form) {
+    public function doSaveNotificationSettings($data, $form)
+    {
         $filter = array();
         $member = Member::get()->byID($data["ID"]);
 
         // Check that a mamber isn't trying to mess up another users profile
-        if(Member::currentUserID() && $member->canEdit(Member::currentUser())) {
+        if (Member::currentUserID() && $member->canEdit(Member::currentUser())) {
             // Save member
             $form->saveInto($member);
             $member->write();
             $this->owner->setSessionMessage(
                 "message success",
-                _t("Discussions.NotificationSettingsUpdated","Notification settings updated")
+                _t("Discussions.NotificationSettingsUpdated", "Notification settings updated")
             );
 
             return $this->owner->redirect($this->owner->Link());
-        } else
+        } else {
             $this->owner->setSessionMessage(
                 "message error",
-                _t("Discussions.CannotEditAccount","You cannot edit this account")
+                _t("Discussions.CannotEditAccount", "You cannot edit this account")
             );
+        }
 
         return $this->owner->redirectBack();
     }
@@ -117,7 +122,8 @@ class DiscussionsUsersController extends Extension {
      * Add fields used by this module to the profile editing form
      *
      */
-    public function updateEditAccountForm($form) {
+    public function updateEditAccountForm($form)
+    {
         $id = Member::currentUserID();
 
 
@@ -125,9 +131,9 @@ class DiscussionsUsersController extends Extension {
         // Add Nickname Field
         $form
             ->Fields()
-            ->insertBefore(TextField::create("Nickname"),"FirstName");
+            ->insertBefore(TextField::create("Nickname"), "FirstName");
 
-        $avatar_field = UploadField::create("Avatar",_t("Discussions.ChooseProfileImage","Choose your profile image"))
+        $avatar_field = UploadField::create("Avatar", _t("Discussions.ChooseProfileImage", "Choose your profile image"))
             ->setFolderName("profile/{$id}")
             ->setCanAttachExisting(false)
             ->setCanPreviewFolder(false)
@@ -147,17 +153,18 @@ class DiscussionsUsersController extends Extension {
 
         $form
             ->Fields()
-            ->add(TextField::create("URL","URL"));
+            ->add(TextField::create("URL", "URL"));
     }
 
     /**
      * Add commerce specific links to account menu
      *
      */
-    public function updateAccountMenu($menu) {
+    public function updateAccountMenu($menu)
+    {
         $menu->add(new ArrayData(array(
             "ID"    => 10,
-            "Title" => _t('Discussions.NotificationSettings','Notification Settings'),
+            "Title" => _t('Discussions.NotificationSettings', 'Notification Settings'),
             "Link"  => $this->owner->Link("notificationsettings")
         )));
     }

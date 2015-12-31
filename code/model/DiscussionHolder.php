@@ -4,7 +4,8 @@
  * Page type responsible for holding "discussions" and their comments
  *
  */
-class DiscussionHolder extends Page implements PermissionProvider {
+class DiscussionHolder extends Page implements PermissionProvider
+{
 
     /**
      * Default sender address for notification emails, if not set, use
@@ -30,12 +31,13 @@ class DiscussionHolder extends Page implements PermissionProvider {
 
     private static $allowed_children = array();
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
 
         // Add creation button if member has create permissions
         $add_button = new GridFieldAddNewInlineButton('toolbar-header-left');
-        $add_button->setTitle(_t("Discussions.AddCategory","Add Category"));
+        $add_button->setTitle(_t("Discussions.AddCategory", "Add Category"));
 
         $gridField = new GridField(
             'Categories',
@@ -57,11 +59,12 @@ class DiscussionHolder extends Page implements PermissionProvider {
         return $fields;
     }
 
-    public function getSettingsFields() {
+    public function getSettingsFields()
+    {
         $fields = parent::getSettingsFields();
 
         $groupsMap = array();
-        foreach(Group::get() as $group) {
+        foreach (Group::get() as $group) {
             // Listboxfield values are escaped, use ASCII char instead of &raquo;
             $groupsMap[$group->ID] = $group->getBreadcrumbs(' > ');
         }
@@ -72,10 +75,10 @@ class DiscussionHolder extends Page implements PermissionProvider {
             "Root.Settings",
             ListboxField::create(
                "PosterGroups",
-               _t("Discussion.PosterGroups","Groups that can post")
+               _t("Discussion.PosterGroups", "Groups that can post")
             )->setMultiple(true)
             ->setSource($groupsMap)
-            ->setValue(null,$this->PosterGroups()),
+            ->setValue(null, $this->PosterGroups()),
             "CanViewType"
         );
 
@@ -83,17 +86,18 @@ class DiscussionHolder extends Page implements PermissionProvider {
             "Root.Settings",
             ListboxField::create(
                "ModeratorGroups",
-               _t("Discussion.ModeratorGroups","Groups that can moderate")
+               _t("Discussion.ModeratorGroups", "Groups that can moderate")
             )->setMultiple(true)
             ->setSource($groupsMap)
-            ->setValue(null,$this->ModeratorGroups()),
+            ->setValue(null, $this->ModeratorGroups()),
             "CanViewType"
         );
 
         return $fields;
     }
 
-    public function providePermissions() {
+    public function providePermissions()
+    {
         return array(
             'DISCUSSIONS_REPLY' => array(
                 'name'      => 'Reply to discussions',
@@ -110,13 +114,14 @@ class DiscussionHolder extends Page implements PermissionProvider {
         );
     }
 
-    public function requireDefaultRecords() {
+    public function requireDefaultRecords()
+    {
         parent::requireDefaultRecords();
 
         // Setup Discussion Page
         $page = DiscussionHolder::get()->first();
 
-        if(!$page) {
+        if (!$page) {
             $page = new DiscussionHolder();
             $page->Title = "Discussions";
             $page->URLSegment = "discussions";
@@ -127,19 +132,25 @@ class DiscussionHolder extends Page implements PermissionProvider {
         }
     }
 
-    public function canStartDiscussions($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canStartDiscussions($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
 
-        if(!$member)
+        if (!$member) {
             return false;
+        }
 
         // If admin, return true
-        if(Permission::check("ADMIN"))
+        if (Permission::check("ADMIN")) {
             return true;
+        }
 
         // If member is in discussions moderator groups, return true
-        if($this->PosterGroups()->filter("Members.ID", $member->ID)->exists())
+        if ($this->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
             return true;
+        }
 
         return false;
     }
@@ -147,14 +158,15 @@ class DiscussionHolder extends Page implements PermissionProvider {
     /**
      * Perform database cleanup when deleting
      */
-    public function onBeforeDelete() {
+    public function onBeforeDelete()
+    {
         parent::onBeforeDelete();
 
-        foreach($this->Discussions() as $item) {
+        foreach ($this->Discussions() as $item) {
             $item->delete();
         }
 
-        foreach($this->Categories() as $item) {
+        foreach ($this->Categories() as $item) {
             $item->delete();
         }
     }
