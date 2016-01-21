@@ -1,6 +1,6 @@
 <?php
 
-if(class_exists('Widget')) {
+if (class_exists('Widget')) {
 
     /**
      * Generates a discussion menu, so you can see your liked comments
@@ -8,7 +8,8 @@ if(class_exists('Widget')) {
      *
      * @package discussions
      */
-    class DiscussionsMenuWidget extends Widget {
+    class DiscussionsMenuWidget extends Widget
+    {
 
         public static $db = array(
             "Title"     => "Varchar"
@@ -21,7 +22,8 @@ if(class_exists('Widget')) {
         public static $cmsTitle = "Discussion Menu";
         public static $description = "Shows a user menu for this discussion holder";
 
-        public function getCMSFields() {
+        public function getCMSFields()
+        {
             $fields = parent::getCMSFields();
 
             $fields->merge(
@@ -35,7 +37,8 @@ if(class_exists('Widget')) {
             return $fields;
         }
 
-        public function Title() {
+        public function Title()
+        {
             return $this->Title ? $this->Title : "Discussion Menu";
         }
 
@@ -44,7 +47,8 @@ if(class_exists('Widget')) {
          *
          * @return DataList
          */
-        public function getMenu() {
+        public function getMenu()
+        {
             // Get the current associated discussion holder
             $discussion_holder = DiscussionHolder::get()
                 ->filter("SideBar.ID", $this->ParentID)
@@ -54,26 +58,25 @@ if(class_exists('Widget')) {
 
             $menu->add(new ArrayData(array(
                 "ID"    => 0,
-                "Title" => _t('Discussions.All',"All"),
+                "Title" => _t('Discussions.All', "All"),
                 "Link"  => $discussion_holder->Link()
             )));
 
             $menu->add(new ArrayData(array(
                 "ID"    => 10,
-                "Title" => _t('Discussions.Liked',"Liked"),
+                "Title" => _t('Discussions.Liked', "Liked"),
                 "Link"  => $discussion_holder->Link("liked")
             )));
 
             $menu->add(new ArrayData(array(
                 "ID"    => 20,
-                "Title" => _t('Discussions.Started',"I started"),
+                "Title" => _t('Discussions.Started', "I started"),
                 "Link"  => $discussion_holder->Link("my")
             )));
 
             $this->extend("updateMenu", $menu);
 
-            return $menu->sort("ID","ASC");
+            return $menu->sort("ID", "ASC");
         }
-
     }
 }

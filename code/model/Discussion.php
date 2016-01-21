@@ -1,6 +1,7 @@
 <?php
 
-class Discussion extends DataObject {
+class Discussion extends DataObject
+{
     private static $db = array(
         "Title"     => "Varchar(99)",
         "Content"   => "Text",
@@ -32,7 +33,8 @@ class Discussion extends DataObject {
         "Reported"      => "Boolean"
     );
 
-    public function Link($action = null) {
+    public function Link($action = null)
+    {
         return Controller::join_links(
             $this->Parent()->Link($action),
             $this->ID
@@ -44,13 +46,15 @@ class Discussion extends DataObject {
      *
      * @return boolean
      */
-    public function getLiked() {
+    public function getLiked()
+    {
         $member_id = Member::currentUserID();
 
-        if($this->LikedBy()->find("ID", $member_id))
+        if ($this->LikedBy()->find("ID", $member_id)) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -58,27 +62,30 @@ class Discussion extends DataObject {
      *
      * @return boolean
      */
-    public function getReported() {
+    public function getReported()
+    {
         $member_id = Member::currentUserID();
 
-        if($this->Reports()->find("ReporterID", $member_id))
+        if ($this->Reports()->find("ReporterID", $member_id)) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
      * Returns the tags added to this discussion
      */
-    public function TagsCollection() {
+    public function TagsCollection()
+    {
         $output = new ArrayList();
 
-        if($this->Tags) {
+        if ($this->Tags) {
             $tags = preg_split(" *, *", trim($this->Tags));
 
             $link = $this->Parent() ? $this->Parent()->Link('tag') : '';
 
-            foreach($tags as $tag) {
+            foreach ($tags as $tag) {
                 $output->push(new ArrayData(array(
                     'Tag' => Convert::raw2xml($tag),
                     'Link' => Controller::join_links($link, Convert::raw2url($tag)),
@@ -90,14 +97,18 @@ class Discussion extends DataObject {
         return $output;
     }
 
-    public function canView($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canView($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
         $return = true;
 
         // Check if this author is on the user's block list
-        if($member && $member->BlockedMembers()->exists()) {
-            if($member->BlockedMembers()->find("ID", $this->AuthorID))
+        if ($member && $member->BlockedMembers()->exists()) {
+            if ($member->BlockedMembers()->find("ID", $this->AuthorID)) {
                 $return = false;
+            }
         }
 
         return $return;
@@ -108,8 +119,9 @@ class Discussion extends DataObject {
      *
      * @see docs/en/Extending
      */
-    public function CommentsForm() {
-        if(Commenting::has_commenting($this->ownerBaseClass) && Commenting::get_config_value($this->ownerBaseClass, 'include_js')) {
+    public function CommentsForm()
+    {
+        if (Commenting::has_commenting($this->ownerBaseClass) && Commenting::get_config_value($this->ownerBaseClass, 'include_js')) {
             Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
             Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/lib/jquery.form.js');
             Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/jquery.validate.pack.js');
@@ -120,7 +132,9 @@ class Discussion extends DataObject {
         $enabled = (!$this->attachedToSiteTree() || $this->owner->ProvideComments) ? true : false;
 
         // do not include the comments on pages which don't have id's such as security pages
-        if($this->owner->ID < 0) return false;
+        if ($this->owner->ID < 0) {
+            return false;
+        }
 
         $controller = new CommentingController();
         $controller->setOwnerRecord($this);
@@ -131,7 +145,7 @@ class Discussion extends DataObject {
         Session::clear('CommentsModerated');
 
         // Tweak the comments form a bit, so it is more user friendly
-        if($enabled) {
+        if ($enabled) {
             $form = $controller->CommentsForm();
 
             $form->Fields()->removeByName("Comment");
@@ -140,7 +154,7 @@ class Discussion extends DataObject {
                 ->setCustomValidationMessage(_t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'))
                 ->setAttribute('data-message-required', _t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'));
 
-            if($form->Fields()->dataFieldByName("NameView")) {
+            if ($form->Fields()->dataFieldByName("NameView")) {
                 $form
                     ->Fields()
                     ->insertBefore($comment_field, "NameView");
@@ -149,9 +163,9 @@ class Discussion extends DataObject {
                     ->Fields()
                     ->insertBefore($comment_field, "Name");
             }
-
-        } else
+        } else {
             $form = false;
+        }
 
         // a little bit all over the show but to ensure a slightly easier upgrade for users
         // return back the same variables as previously done in comments
@@ -169,44 +183,59 @@ class Discussion extends DataObject {
         )));
     }
 
-    public function canEdit($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canEdit($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
 
         // If admin, return true
-        if(Permission::check("ADMIN"))
+        if (Permission::check("ADMIN")) {
             return true;
+        }
 
         // If member is in discussions moderator groups, return true
-        if($this->Parent()->ModeratorGroups()->filter("Members.ID", $member->ID)->exists())
+        if ($this->Parent()->ModeratorGroups()->filter("Members.ID", $member->ID)->exists()) {
             return true;
+        }
 
         // If member is the author
-        if($this->Author()->ID == $member->ID)
+        if ($this->Author()->ID == $member->ID) {
             return true;
+        }
 
         return false;
     }
 
-    public function canDelete($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canDelete($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
 
         // If admin, return true
-        if(Permission::check("ADMIN"))
+        if (Permission::check("ADMIN")) {
             return true;
+        }
 
         // If member is in discussions moderator groups, return true
-        if($this->Parent()->ModeratorGroups()->filter("Members.ID", $member->ID)->exists())
+        if ($this->Parent()->ModeratorGroups()->filter("Members.ID", $member->ID)->exists()) {
             return true;
+        }
 
         // If member is the author
-        if($this->Author()->ID == $member->ID)
+        if ($this->Author()->ID == $member->ID) {
             return true;
+        }
 
         return false;
     }
 
-    public function canCreate($member = null) {
-        if(!$member) $member = Member::currentUser();
+    public function canCreate($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
 
         return $this->Parent()->canStartDiscussions($member);
     }
@@ -214,21 +243,22 @@ class Discussion extends DataObject {
     /**
      * Check if members who liked this would like a notification
      */
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
 
-        foreach($this->LikedBy() as $member) {
-
+        foreach ($this->LikedBy() as $member) {
         }
     }
 
     /**
      * Perform database cleanup when deleting
      */
-    public function onBeforeDelete() {
+    public function onBeforeDelete()
+    {
         parent::onBeforeDelete();
 
-        foreach($this->getComments() as $comment) {
+        foreach ($this->getComments() as $comment) {
             $comment->delete();
         }
     }

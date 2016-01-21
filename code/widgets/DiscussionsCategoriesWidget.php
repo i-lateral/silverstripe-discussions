@@ -1,13 +1,14 @@
 <?php
 
-if(class_exists('Widget')) {
+if (class_exists('Widget')) {
 
     /**
      * A list of tags associated with discussions
      *
      * @package discussionforum
      */
-    class DiscussionsCategoriesWidget extends Widget {
+    class DiscussionsCategoriesWidget extends Widget
+    {
 
         public static $db = array(
             "Title"     => "Varchar"
@@ -20,7 +21,8 @@ if(class_exists('Widget')) {
         public static $cmsTitle = "Discussion Categories";
         public static $description = "Shows list of categories associated with this discussion holder";
 
-        public function getCMSFields() {
+        public function getCMSFields()
+        {
             $fields = parent::getCMSFields();
 
             $fields->merge(
@@ -34,7 +36,8 @@ if(class_exists('Widget')) {
             return $fields;
         }
 
-        public function Title() {
+        public function Title()
+        {
             return $this->Title ? $this->Title : "Discussion Categories";
         }
 
@@ -43,7 +46,8 @@ if(class_exists('Widget')) {
          *
          * @return DataList
          */
-        public function getCategories() {
+        public function getCategories()
+        {
             // Get the current associated discussion holder
             $discussion_holder = DiscussionHolder::get()
                 ->filter("SideBar.ID", $this->ParentID)
@@ -51,6 +55,5 @@ if(class_exists('Widget')) {
 
             return $discussion_holder->Categories();
         }
-
     }
 }

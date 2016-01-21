@@ -1,21 +1,27 @@
 <?php
 
-class DiscussionsComment extends DataExtension {
+class DiscussionsComment extends DataExtension
+{
     // Extend default member options
-    public function canView(Member $member) {
-        if(!$member) $member = Member::currentUser();
+    public function canView(Member $member)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
 
         // Check if this author is on the user's block list
-        if($member->BlockedMembers()->exists()) {
-            if($member->BlockedMembers()->find("ID", $this->owner->AuthorID))
+        if ($member->BlockedMembers()->exists()) {
+            if ($member->BlockedMembers()->find("ID", $this->owner->AuthorID)) {
                 return false;
+            }
         }
 
         return true;
     }
 
-    public function onBeforeWrite() {
-        if($this->owner->BaseClass == "Discussion" && $this->owner->ID == 0) {
+    public function onBeforeWrite()
+    {
+        if ($this->owner->BaseClass == "Discussion" && $this->owner->ID == 0) {
             $discussion = Discussion::get()
                 ->byID($this->owner->ParentID);
 
@@ -26,10 +32,11 @@ class DiscussionsComment extends DataExtension {
                 ->byID($this->owner->AuthorID);
 
             // Get our default email from address
-            if(DiscussionHolder::config()->send_emails_from)
+            if (DiscussionHolder::config()->send_emails_from) {
                 $from = DiscussionHolder::config()->send_email_from;
-            else
+            } else {
                 $from = Email::config()->admin_email;
+            }
 
             // Vars for the emails
             $vars = array(
@@ -44,7 +51,7 @@ class DiscussionsComment extends DataExtension {
             );
 
             // Send email to discussion owner
-            if(
+            if (
                 $discussion_author &&
                 $discussion_author->Email &&
                 $discussion_author->RecieveCommentEmails &&
@@ -64,8 +71,8 @@ class DiscussionsComment extends DataExtension {
             }
 
             // Send to anyone who liked this, if they want notifications
-            foreach($discussion->LikedBy() as $liked) {
-                if($liked->RecieveLikedReplyEmails && $liked->Email && ($liked->ID != $author->ID)) {
+            foreach ($discussion->LikedBy() as $liked) {
+                if ($liked->RecieveLikedReplyEmails && $liked->Email && ($liked->ID != $author->ID)) {
                     $subject = _t(
                         "Discussions.NewLikedReplySubject",
                         "{Nickname} replied to your liked discussion",

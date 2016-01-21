@@ -1,6 +1,7 @@
 <?php
 
-class DiscussionsMember extends DataExtension {
+class DiscussionsMember extends DataExtension
+{
     private static $db = array(
         "Nickname"                  => "Varchar",
         "URL"                       => "Varchar(200)",
@@ -29,11 +30,13 @@ class DiscussionsMember extends DataExtension {
         "RecieveLikedEmails"    => 1
     );
 
-    public function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(FieldList $fields)
+    {
         $fields->removeByName("LikedDiscussions");
     }
 
-    public function onBeforeWrite() {
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
 
         $this->owner->Nickname = ($this->owner->Nickname) ? $this->owner->Nickname : $this->owner->FirstName;

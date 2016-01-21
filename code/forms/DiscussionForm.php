@@ -5,30 +5,32 @@
  *
  * @return NewDiscussionForm
  */
-class DiscussionForm extends Form {
+class DiscussionForm extends Form
+{
 
-    public function __construct($controller, $name, $discussion = null) {
+    public function __construct($controller, $name, $discussion = null)
+    {
         // Get member and upload path
         $member = Member::currentUser();
 
         $fields = new FieldList(
             HiddenField::create("ID"),
             TextField::create("Title", _t("Discussions.GiveTitle", "Give your discussion a title")),
-            TextAreaField::create("Content", _t("Discussions.AddContent","And some content (optional)")),
-            TextField::create("Tags", _t("Discussions.AddTags","Finally, add some tags (optional)"))
-                ->setAttribute("placeholder","Tag 1, Tag 2")
+            TextAreaField::create("Content", _t("Discussions.AddContent", "And some content (optional)")),
+            TextField::create("Tags", _t("Discussions.AddTags", "Finally, add some tags (optional)"))
+                ->setAttribute("placeholder", "Tag 1, Tag 2")
         );
 
-        if($controller->Categories()->exists()) {
+        if ($controller->Categories()->exists()) {
             $fields->add(CheckboxsetField::create(
                 "Categories",
-                _t("Discussions.Categories","Or Post this under a category? (optional)"),
+                _t("Discussions.Categories", "Or Post this under a category? (optional)"),
                 $controller->Categories()->map()
             ));
         }
 
         $actions = new FieldList(
-            FormAction::create("post")->setTitle(_t("Discussions.Post","Post"))
+            FormAction::create("post")->setTitle(_t("Discussions.Post", "Post"))
         );
 
         $validator = new RequiredFields(
@@ -44,18 +46,21 @@ class DiscussionForm extends Form {
      *
      * @return Redirect
      */
-    public function post(array $data, Form $form) {
+    public function post(array $data, Form $form)
+    {
         $discussion = null;
         $page = DiscussionHolder::get()->byID($this->controller->ID);
         $member = Member::currentUser();
 
-        if($this->controller->canStartDiscussions($member)) {
+        if ($this->controller->canStartDiscussions($member)) {
             // Check if we are editing or creating
-            if(isset($data['ID']) && $data['ID'])
+            if (isset($data['ID']) && $data['ID']) {
                 $discussion = Discussion::get()->byID($data['ID']);
+            }
 
-            if(!$discussion || $discussion == null)
+            if (!$discussion || $discussion == null) {
                 $discussion = Discussion::create();
+            }
 
             $form->saveInto($discussion);
             $discussion->AuthorID = $member->ID;
@@ -71,8 +76,8 @@ class DiscussionForm extends Form {
             );
 
             return $this->controller->redirect($discussion_url);
-        } else
+        } else {
             return $this->controller->httpError(404);
+        }
     }
-
 }
