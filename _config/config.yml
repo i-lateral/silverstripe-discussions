@@ -1,0 +1,18 @@
+---
+Name: discussionsconfig
+---
+CommentingController:
+  extensions:
+    - DiscussionCommentControllerExtension
+Member:
+  extensions:
+    - DiscussionsMember
+Group:
+  extensions:
+    - DiscussionsGroup
+Comment:
+  extensions:
+    - DiscussionsComment
+Users_Account_Controller:
+  extensions:
+    - DiscussionsUsersController

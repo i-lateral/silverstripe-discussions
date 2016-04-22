@@ -1,0 +1,7 @@
+---
+Name: discussionroutes
+After: framework/routes#coreroutes
+---
+Director:
+  rules:
+    'discuss//$Action/$ID': 'Discussion_Controller'
