@@ -8,19 +8,27 @@
 <div class="units-row">
     <div class="site-content typography <% if $SideBarView %>unit-75<% end_if %>">
         <% with $Discussion %>
-            <h1>
-                $Title
-                <% if $Liked %>
-                    <span class="label label-blue">
-                        <% _t("Discussions.Liked", "Liked") %>
-                    </span>
-                <% end_if %>
-                <% if $Reported %>
-                    <span class="label label-red">
-                        <% _t("Discussions.Reported", "Reported") %>
-                    </span>
-                <% end_if %>
-            </h1>
+            <div class="row line units-row">
+                <h1 class="col-md-75 unit size3of4">
+                    $Title
+                    <% if $Liked %>
+                        <span class="label label-blue">
+                            <% _t("Discussions.Liked", "Liked") %>
+                        </span>
+                    <% end_if %>
+                    <% if $Reported %>
+                        <span class="label label-red">
+                            <% _t("Discussions.Reported", "Reported") %>
+                        </span>
+                    <% end_if %>
+                </h1>
+                
+                <p class="col-md-25 unit size1of4">
+                    <a href="$Up.Link">
+                        &laquo; <%t Discussions.BackToDiscussions "Back to Discussions" %>
+                    </a>
+                </p>
+            </div>
 
             <% if $Author.Avatar %>
                 <img
@@ -74,7 +82,7 @@
 
             <div class="units-row-end">
                 <p class="unit-push-right">
-                    <% if not $Liked %>
+                    <% if $canLike %>
                         <a href="{$Top.Link('like')}/{$ID}" class="btn btn-blue"><% _t("Discussions.LikeThis", "Like this") %></a>
                     <% end_if %>
 

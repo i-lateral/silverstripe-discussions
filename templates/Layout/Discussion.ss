@@ -1,15 +1,15 @@
 <div class="units-row">
     <div class="site-content typography <% if $SideBarView %>unit-75<% end_if %>">
-        <% if $Tag %>
-            <h1>Current tag: "{$Tag}"</h1>
-        <% else_if $Category %>
-            <h1>Current category: "{$Category.Title}"</h1>
+        <% if $CurrentTag %>
+            <h1>Current tag: "{$CurrentTag}"</h1>
+        <% else_if $CurrentCategory %>
+            <h1>Current category: "{$CurrentCategory.Title}"</h1>
         <% else %>
             <h1>$Title</h1>
         <% end_if %>
 
         <% if not $SideBarView && $canStartDiscussions %>
-            <p class="discussions-start-button">
+            <p class="discussions-start-button line row units-row">
                 <a class="btn btn-big btn-green" href="{$Link('start')}">
                     <% _t("Discussions.StartDiscussion", "Start new discussion") %>
                 </a>
@@ -19,7 +19,7 @@
         <% if $ViewableDiscussions.Count == 0 %>
             <p>There are currenty no discussions.</p>
 
-            <% if $canStartDiscussions %>
+            <% if $SideBarView && $canStartDiscussions %>
                 <p class="discussions-start-button">
                     <a class="btn btn-big btn-green" href="{$Link('start')}">
                         <% _t("Discussions.StartDiscussion", "Start new discussion") %>
