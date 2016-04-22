@@ -26,14 +26,13 @@ class DiscussionsComment extends DataExtension
                 ->byID($this->owner->ParentID);
 
             $discussion_author = $discussion->Author();
-            $holder = $discussion->Parent();
 
             $author = Member::get()
                 ->byID($this->owner->AuthorID);
 
             // Get our default email from address
-            if (DiscussionHolder::config()->send_emails_from) {
-                $from = DiscussionHolder::config()->send_email_from;
+            if (Discussion::config()->send_emails_from) {
+                $from = Discussion::config()->send_email_from;
             } else {
                 $from = Email::config()->admin_email;
             }
@@ -44,8 +43,7 @@ class DiscussionsComment extends DataExtension
                 "Author" => $author,
                 "Comment" => $this->owner->Comment,
                 'Link' => Controller::join_links(
-                    $holder->Link("view"),
-                    $discussion->ID,
+                    $discussion->Link("view"),
                     "#comments-holder"
                 )
             );

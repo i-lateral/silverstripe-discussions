@@ -14,10 +14,6 @@ class DiscussionCategory extends DataObject
         "URLSegment"    => "Varchar"
     );
 
-    private static $has_one = array(
-        "Parent" => "DiscussionHolder"
-    );
-
     private static $belongs_many_many = array(
         "Discussions"   => "Discussion"
     );
@@ -29,12 +25,19 @@ class DiscussionCategory extends DataObject
 
     private static $default_sort = "Title ASC";
 
-    public function Link()
+    public function Link($action = "category")
     {
-        return Controller::join_links(
-            $this->Parent()->Link("category"),
-            $this->URLSegment
-        );
+        if (Discussion::useCMS()) {
+            return Controller::join_links(
+                $this->Parent()->Link($action),
+                $this->URLSegment
+            );
+        } else {
+            return Controller::join_links(
+                Discussion_Controller::create()->Link($action),
+                $this->URLSegment
+            );
+        }
     }
 
     public function getCMSFields()
@@ -60,16 +63,40 @@ class DiscussionCategory extends DataObject
 
     public function canEdit($member = null)
     {
-        return $this->Parent()->canEdit($member);
+        if(Discussion::useCMS()) {
+            return $this->Parent()->canEdit($member);
+        } else {
+            if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public function canDelete($member = null)
     {
-        return $this->Parent()->canDelete($member);
+        if(Discussion::useCMS()) {
+            return $this->Parent()->canDelete($member);
+        } else {
+            if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public function canCreate($member = null)
     {
-        return $this->Parent()->canCreate($member);
+        if(Discussion::useCMS()) {
+            return $this->Parent()->canCreate($member);
+        } else {
+            if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

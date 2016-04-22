@@ -1,6 +1,6 @@
 <?php
 
-class Discussion extends DataObject
+class Discussion extends DataObject implements PermissionProvider
 {
     private static $db = array(
         "Title"     => "Varchar(99)",
@@ -9,8 +9,7 @@ class Discussion extends DataObject
     );
 
     private static $has_one = array(
-        "Author"    => "Member",
-        "Parent"    => "DiscussionHolder"
+        "Author"    => "Member"
     );
 
     private static $has_many = array(
@@ -28,17 +27,70 @@ class Discussion extends DataObject
     private static $default_sort = "Created DESC";
 
     private static $casting = array(
-        "Link"          => "Varchar",
-        "Liked"         => "Boolean",
-        "Reported"      => "Boolean"
+        "Link"      => "Varchar",
+        "Liked"     => "Boolean",
+        "Reported"  => "Boolean"
     );
-
-    public function Link($action = null)
+    
+    private static $summary_fields = array(
+        "Title",
+        "Reports.Count"
+    );
+    
+    public function providePermissions()
     {
-        return Controller::join_links(
-            $this->Parent()->Link($action),
-            $this->ID
+        return array(
+            'DISCUSSIONS_POSTING' => array(
+                'name'      => 'Post Discussions',
+                'help'      => 'Can post new discussions and reply to discussions',
+                'category'  => 'Discussions',
+                'sort'      => 90
+            ),
+            'DISCUSSIONS_MODERATION' => array(
+                'name'      => 'Moderate discussions',
+                'help'      => 'Moderate discussions created by users',
+                'category'  => 'Discussions',
+                'sort'      => 100
+            ),
+            'DISCUSSIONS_MANAGER' => array(
+                'name'      => 'Manage discussion settings',
+                'help'      => 'Manage Categories, Tags and group membership',
+                'category'  => 'Discussions',
+                'sort'      => 110
+            ),
         );
+    }
+    
+    /**
+     * Address to send notification emails from
+     * 
+     * @var String
+     * @config
+     */
+    private static $send_emails_from;
+
+    /**
+     * Simple function to determine if we are using the CMS
+     * 
+     * @return Boolean
+     */
+    public static function useCMS() {
+        return (class_exists("SiteTree"));
+    }
+
+    public function Link($action = "view")
+    {
+        if (self::useCMS()) {
+            return Controller::join_links(
+                $this->Parent()->Link($action),
+                $this->ID
+            );
+        } else {
+            return Controller::join_links(
+                Discussion_Controller::create()->Link($action),
+                $this->ID
+            );
+        }
     }
 
     /**
@@ -46,10 +98,14 @@ class Discussion extends DataObject
      *
      * @return boolean
      */
-    public function getLiked()
+    public function getLiked($member = null)
     {
-        $member_id = Member::currentUserID();
-
+        if ($member && $member->ID) {
+            $member_id = $member->ID;
+        } else {
+            $member_id = Member::currentUserID();
+        }
+        
         if ($this->LikedBy()->find("ID", $member_id)) {
             return true;
         } else {
@@ -97,6 +153,12 @@ class Discussion extends DataObject
         return $output;
     }
 
+    /**
+     * Can the member view this discussion?
+     * 
+     * @param $member Member object
+     * @return Boolean
+     */
     public function canView($member = null)
     {
         if (!$member) {
@@ -113,76 +175,70 @@ class Discussion extends DataObject
 
         return $return;
     }
-
+    
     /**
-     * Overwrite the default comments form so we can tweak a bit
-     *
-     * @see docs/en/Extending
+     * Can the member create a discussion?
+     * 
+     * @param $member Member object
+     * @return Boolean
      */
-    public function CommentsForm()
+    public function canCreate($member = null)
     {
-        if (Commenting::has_commenting($this->ownerBaseClass) && Commenting::get_config_value($this->ownerBaseClass, 'include_js')) {
-            Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
-            Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/lib/jquery.form.js');
-            Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/jquery.validate.pack.js');
-            Requirements::javascript('comments/javascript/CommentsInterface.js');
+        if (!$member) {
+            $member = Member::currentUser();
         }
 
-        $interface = new SSViewer('DiscussionsCommentsInterface');
-        $enabled = (!$this->attachedToSiteTree() || $this->owner->ProvideComments) ? true : false;
-
-        // do not include the comments on pages which don't have id's such as security pages
-        if ($this->owner->ID < 0) {
+        if (!$member) {
             return false;
         }
 
-        $controller = new CommentingController();
-        $controller->setOwnerRecord($this);
-        $controller->setBaseClass($this->ClassName);
-        $controller->setOwnerController(Controller::curr());
-
-        $moderatedSubmitted = Session::get('CommentsModerated');
-        Session::clear('CommentsModerated');
-
-        // Tweak the comments form a bit, so it is more user friendly
-        if ($enabled) {
-            $form = $controller->CommentsForm();
-
-            $form->Fields()->removeByName("Comment");
-
-            $comment_field = TextareaField::create("Comment", "")
-                ->setCustomValidationMessage(_t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'))
-                ->setAttribute('data-message-required', _t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'));
-
-            if ($form->Fields()->dataFieldByName("NameView")) {
-                $form
-                    ->Fields()
-                    ->insertBefore($comment_field, "NameView");
-            } else {
-                $form
-                    ->Fields()
-                    ->insertBefore($comment_field, "Name");
-            }
-        } else {
-            $form = false;
+        // If admin, return true
+        if (Permission::check(array("ADMIN", "DISCUSSIONS_POSTING"))) {
+            return true;
         }
 
-        // a little bit all over the show but to ensure a slightly easier upgrade for users
-        // return back the same variables as previously done in comments
-        return $interface->process(new ArrayData(array(
-            'CommentHolderID'           => Commenting::get_config_value($this->ClassName, 'comments_holder_id'),
-            'PostingRequiresPermission' => Commenting::get_config_value($this->ClassName, 'required_permission'),
-            'CanPost'                   => Commenting::can_member_post($this->ClassName),
-            'RssLink'                   => "CommentingController/rss",
-            'RssLinkPage'               => "CommentingController/rss/". $this->ClassName . '/'.$this->ID,
-            'CommentsEnabled'           => $enabled,
-            'Parent'                    => $this,
-            'AddCommentForm'            => $form,
-            'ModeratedSubmitted'        => $moderatedSubmitted,
-            'Comments'                  => $this->getComments()
-        )));
-    }
+        // If member is in discussions moderator groups, return true
+        if (self::useCMS() && $this->Parent()->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
+            return true;
+        }
 
+        return false;
+    }
+    
+    /**
+     * Can the member like this post?
+     * 
+     * @param $member Member object
+     * @return Boolean
+     */
+    public function canLike($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
+
+        if (!$member) {
+            return false;
+        }
+        
+        // If the Author or already liked, disallow
+        if ($member->ID == $this->AuthorID || $this->getLiked($member)) {
+            return false;
+        }
+
+        // If correct permission, return true
+        if (Permission::check(array("ADMIN", "DISCUSSIONS_MODERATION"))) {
+            return true;
+        }
+
+        // If member is in discussions moderator groups, return true
+        if (self::useCMS() && $this->Parent()->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+    
     public function canEdit($member = null)
     {
         if (!$member) {
@@ -190,7 +246,7 @@ class Discussion extends DataObject
         }
 
         // If admin, return true
-        if (Permission::check("ADMIN")) {
+        if (Permission::check(array("ADMIN", "DISCUSSIONS_POSTING"))) {
             return true;
         }
 
@@ -229,15 +285,6 @@ class Discussion extends DataObject
         }
 
         return false;
-    }
-
-    public function canCreate($member = null)
-    {
-        if (!$member) {
-            $member = Member::currentUser();
-        }
-
-        return $this->Parent()->canStartDiscussions($member);
     }
 
     /**

@@ -1,173 +1,134 @@
 <?php
 
-/**
- * Page type responsible for holding "discussions" and their comments
- *
- */
-class DiscussionHolder extends Page implements PermissionProvider
-{
-
+if(Discussion::useCMS()) {
     /**
-     * Default sender address for notification emails, if not set, use
-     * Email.admin_email instead
+     * Page type responsible for holding "discussions" and their comments
      *
-     * @config
      */
-    private static $send_email_from;
-
-    private static $icon = "discussions/images/speechbubble.png";
-
-    private static $db = array();
-
-    private static $has_many = array(
-        "Discussions"   => "Discussion",
-        "Categories"    => "DiscussionCategory"
-    );
-
-    private static $many_many = array(
-        'ModeratorGroups' => 'Group',
-        'PosterGroups' => 'Group'
-    );
-
-    private static $allowed_children = array();
-
-    public function getCMSFields()
+    class DiscussionHolder extends Page
     {
-        $fields = parent::getCMSFields();
 
-        // Add creation button if member has create permissions
-        $add_button = new GridFieldAddNewInlineButton('toolbar-header-left');
-        $add_button->setTitle(_t("Discussions.AddCategory", "Add Category"));
+        /**
+         * Default sender address for notification emails, if not set, use
+         * Email.admin_email instead
+         *
+         * @config
+         */
+        private static $send_email_from;
 
-        $gridField = new GridField(
-            'Categories',
-            '',
-            $this->Categories(),
-            GridFieldConfig::create()
-                ->addComponent(new GridFieldButtonRow('before'))
-                ->addComponent(new GridFieldToolbarHeader())
-                ->addComponent(new GridFieldTitleHeader())
-                ->addComponent(new GridFieldEditableColumns())
-                ->addComponent(new GridFieldDeleteAction())
-                ->addComponent($add_button)
+        private static $icon = "discussions/images/speechbubble.png";
+
+        private static $db = array();
+
+        private static $has_many = array(
+            "Discussions"   => "Discussion",
+            "Categories"    => "DiscussionCategory"
         );
 
-        $fields->addFieldToTab("Root.Main", $gridField, "Content");
-
-        $fields->removeByName("Content");
-
-        return $fields;
-    }
-
-    public function getSettingsFields()
-    {
-        $fields = parent::getSettingsFields();
-
-        $groupsMap = array();
-        foreach (Group::get() as $group) {
-            // Listboxfield values are escaped, use ASCII char instead of &raquo;
-            $groupsMap[$group->ID] = $group->getBreadcrumbs(' > ');
-        }
-        asort($groupsMap);
-
-
-        $fields->addFieldToTab(
-            "Root.Settings",
-            ListboxField::create(
-               "PosterGroups",
-               _t("Discussion.PosterGroups", "Groups that can post")
-            )->setMultiple(true)
-            ->setSource($groupsMap)
-            ->setValue(null, $this->PosterGroups()),
-            "CanViewType"
+        private static $many_many = array(
+            'ModeratorGroups' => 'Group',
+            'PosterGroups' => 'Group'
         );
 
-        $fields->addFieldToTab(
-            "Root.Settings",
-            ListboxField::create(
-               "ModeratorGroups",
-               _t("Discussion.ModeratorGroups", "Groups that can moderate")
-            )->setMultiple(true)
-            ->setSource($groupsMap)
-            ->setValue(null, $this->ModeratorGroups()),
-            "CanViewType"
-        );
+        private static $allowed_children = array();
 
-        return $fields;
-    }
+        public function getCMSFields()
+        {
+            $fields = parent::getCMSFields();
 
-    public function providePermissions()
-    {
-        return array(
-            'DISCUSSIONS_REPLY' => array(
-                'name'      => 'Reply to discussions',
-                'help'      => 'Reply to existing discussions created by users',
-                'category'  => 'Discussions',
-                'sort'      => 90
-            ),
-            'DISCUSSIONS_MODERATION' => array(
-                'name'      => 'Moderate discussions',
-                'help'      => 'Moderate discussions created by users',
-                'category'  => 'Discussions',
-                'sort'      => 100
-            ),
-        );
-    }
+            // Add creation button if member has create permissions
+            $add_button = new GridFieldAddNewInlineButton('toolbar-header-left');
+            $add_button->setTitle(_t("Discussions.AddCategory", "Add Category"));
 
-    public function requireDefaultRecords()
-    {
-        parent::requireDefaultRecords();
+            $gridField = new GridField(
+                'Categories',
+                '',
+                $this->Categories(),
+                GridFieldConfig::create()
+                    ->addComponent(new GridFieldButtonRow('before'))
+                    ->addComponent(new GridFieldToolbarHeader())
+                    ->addComponent(new GridFieldTitleHeader())
+                    ->addComponent(new GridFieldEditableColumns())
+                    ->addComponent(new GridFieldDeleteAction())
+                    ->addComponent($add_button)
+            );
 
-        // Setup Discussion Page
-        $page = DiscussionHolder::get()->first();
+            $fields->addFieldToTab("Root.Main", $gridField, "Content");
 
-        if (!$page) {
-            $page = new DiscussionHolder();
-            $page->Title = "Discussions";
-            $page->URLSegment = "discussions";
-            $page->Sort = 3;
-            $page->write();
-            $page->publish('Stage', 'Live');
-            DB::alteration_message('Discussions Holder Created', 'created');
-        }
-    }
+            $fields->removeByName("Content");
 
-    public function canStartDiscussions($member = null)
-    {
-        if (!$member) {
-            $member = Member::currentUser();
+            return $fields;
         }
 
-        if (!$member) {
-            return false;
+        public function getSettingsFields()
+        {
+            $fields = parent::getSettingsFields();
+
+            $groupsMap = array();
+            foreach (Group::get() as $group) {
+                // Listboxfield values are escaped, use ASCII char instead of &raquo;
+                $groupsMap[$group->ID] = $group->getBreadcrumbs(' > ');
+            }
+            asort($groupsMap);
+
+            $fields->addFieldToTab(
+                "Root.Settings",
+                ListboxField::create(
+                   "PosterGroups",
+                   _t("Discussion.PosterGroups", "Groups that can post")
+                )->setMultiple(true)
+                ->setSource($groupsMap)
+                ->setValue(null, $this->PosterGroups()),
+                "CanViewType"
+            );
+
+            $fields->addFieldToTab(
+                "Root.Settings",
+                ListboxField::create(
+                   "ModeratorGroups",
+                   _t("Discussion.ModeratorGroups", "Groups that can moderate")
+                )->setMultiple(true)
+                ->setSource($groupsMap)
+                ->setValue(null, $this->ModeratorGroups()),
+                "CanViewType"
+            );
+
+            return $fields;
         }
 
-        // If admin, return true
-        if (Permission::check("ADMIN")) {
-            return true;
+
+        public function requireDefaultRecords()
+        {
+            parent::requireDefaultRecords();
+
+            // Setup Discussion Page
+            $page = DiscussionHolder::get()->first();
+
+            if (!$page) {
+                $page = new DiscussionHolder();
+                $page->Title = "Discussions";
+                $page->URLSegment = "discussions";
+                $page->Sort = 3;
+                $page->write();
+                $page->publish('Stage', 'Live');
+                DB::alteration_message('Discussions Holder Created', 'created');
+            }
         }
 
-        // If member is in discussions moderator groups, return true
-        if ($this->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
-            return true;
-        }
+        /**
+         * Perform database cleanup when deleting
+         */
+        public function onBeforeDelete()
+        {
+            parent::onBeforeDelete();
 
-        return false;
-    }
+            foreach ($this->Discussions() as $item) {
+                $item->delete();
+            }
 
-    /**
-     * Perform database cleanup when deleting
-     */
-    public function onBeforeDelete()
-    {
-        parent::onBeforeDelete();
-
-        foreach ($this->Discussions() as $item) {
-            $item->delete();
-        }
-
-        foreach ($this->Categories() as $item) {
-            $item->delete();
+            foreach ($this->Categories() as $item) {
+                $item->delete();
+            }
         }
     }
 }

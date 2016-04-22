@@ -28,11 +28,11 @@ class DiscussionsGroup extends DataExtension
             $poster->Title = _t('Discussions.DefaultGroupTitlePosters', 'Discussion Posters');
             $poster->Sort = 1;
             $poster->write();
-            Permission::grant($poster->ID, 'DISCUSSIONS_REPLY');
+            Permission::grant($poster->ID, 'DISCUSSIONS_POST');
             DB::alteration_message('Discussion Poster Group Created', 'created');
         }
 
-        // Add default modrator group if none exists
+        // Add default moderator group if none exists
         $moderator = Permission::get_groups_by_permission('DISCUSSIONS_MODERATION')
             ->first();
 
@@ -47,17 +47,19 @@ class DiscussionsGroup extends DataExtension
         }
 
         // Now add these groups to a discussion holder (if one exists)
-        foreach (DiscussionHolder::get() as $page) {
-            if (!$page->PosterGroups()->count()) {
-                $page->PosterGroups()->add($poster);
-                $page->write();
-                DB::alteration_message('Added Poster Group to Discussions Holder', 'created');
-            }
+        if (Discussion::useCMS()) {
+            foreach (DiscussionHolder::get() as $page) {
+                if (!$page->PosterGroups()->count()) {
+                    $page->PosterGroups()->add($poster);
+                    $page->write();
+                    DB::alteration_message('Added Poster Group to Discussions Holder', 'created');
+                }
 
-            if (!$page->ModeratorGroups()->count()) {
-                $page->ModeratorGroups()->add($moderator);
-                $page->write();
-                DB::alteration_message('Added Moderator Group to Discussions Holder', 'created');
+                if (!$page->ModeratorGroups()->count()) {
+                    $page->ModeratorGroups()->add($moderator);
+                    $page->write();
+                    DB::alteration_message('Added Moderator Group to Discussions Holder', 'created');
+                }
             }
         }
     }
