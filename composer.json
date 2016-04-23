@@ -16,7 +16,7 @@
     },
     "require": {
         "silverstripe/framework": ">=3.2",
-		"silverstripe/siteconfig": ">=3.2"
+		"silverstripe/siteconfig": ">=3.2",
         "silverstripe/comments": "*",
         "i-lateral/silverstripe-sessionmessenger": "*",
         "i-lateral/silverstripe-users": "*",
