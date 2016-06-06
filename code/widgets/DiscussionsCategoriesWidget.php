@@ -42,7 +42,7 @@ if (class_exists('Widget')) {
         }
 
         /**
-         * Get all Discussion Groups and set relevent links for each
+         * Get all Discussion Groups and set relevant links for each
          *
          * @return DataList
          */

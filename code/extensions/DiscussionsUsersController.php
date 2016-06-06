@@ -51,19 +51,19 @@ class DiscussionsUsersController extends Extension
             HiddenField::create("ID"),
             CheckboxField::create(
                 "RecieveCommentEmails",
-                _t("Discussions.RecieveCommentEmails", "Recieve emails when one of my discussions is replied to")
+                _t("Discussions.RecieveCommentEmails", "Receive emails when one of my discussions is replied to")
             ),
             CheckboxField::create(
                 "RecieveNewDiscussionEmails",
-                _t("Discussions.ReveiveNewDiscussionEmails", "Recieve emails when a new discussion is started")
+                _t("Discussions.ReveiveNewDiscussionEmails", "Receive emails when a new discussion is started")
             ),
             CheckboxField::create(
                 "RecieveLikedEmails",
-                _t("Discussions.ReveiveLikedEmails", "Recieve emails when one of my discussions is liked")
+                _t("Discussions.ReveiveLikedEmails", "Receive emails when one of my discussions is liked")
             ),
             CheckboxField::create(
                 "RecieveLikedReplyEmails",
-                _t("Discussions.ReveiveLikedReplyEmails", "Recieve emails when a discussion I like is replied to")
+                _t("Discussions.ReveiveLikedReplyEmails", "Receive emails when a discussion I like is replied to")
             )
         );
 

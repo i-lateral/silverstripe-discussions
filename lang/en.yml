@@ -63,15 +63,15 @@ en:
     Post: Post
     PostReply: 'Post a reply'
     PostedBy: 'Posted by'
-    RecieveCommentEmails: 'Recieve emails when one of my discussions is replied to'
+    RecieveCommentEmails: 'Receive emails when one of my discussions is replied to'
     RemoveReply: 'Remove this reply'
     Replies: Replies
     Reply: Reply
     ReportAbuse: 'Report abuse'
     Reported: Reported
-    ReveiveLikedEmails: 'Recieve emails when one of my discussions is liked'
-    ReveiveLikedReplyEmails: 'Recieve emails when a discussion I like is replied to'
-    ReveiveNewDiscussionEmails: 'Recieve emails when a new discussion is started'
+    ReveiveLikedEmails: 'Receive emails when one of my discussions is liked'
+    ReveiveLikedReplyEmails: 'Receive emails when a discussion I like is replied to'
+    ReveiveNewDiscussionEmails: 'Receive emails when a new discussion is started'
     Save: Save
     StartDiscussion: 'Start new discussion'
     Started: 'I started'
