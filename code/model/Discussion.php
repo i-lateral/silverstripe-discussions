@@ -4,8 +4,7 @@ class Discussion extends DataObject implements PermissionProvider
 {
     private static $db = array(
         "Title"     => "Varchar(99)",
-        "Content"   => "Text",
-        "Tags"      => "Text"
+        "Content"   => "Text"
     );
 
     private static $has_one = array(
@@ -55,7 +54,7 @@ class Discussion extends DataObject implements PermissionProvider
             ),
             'DISCUSSIONS_MANAGER' => array(
                 'name'      => 'Manage discussion settings',
-                'help'      => 'Manage Categories, Tags and group membership',
+                'help'      => 'Manage Discussions and Categories membership',
                 'category'  => 'Discussions',
                 'sort'      => 110
             ),
@@ -113,31 +112,7 @@ class Discussion extends DataObject implements PermissionProvider
             return false;
         }
     }
-
-    /**
-     * Returns the tags added to this discussion
-     */
-    public function TagsCollection()
-    {
-        $output = new ArrayList();
-
-        if ($this->Tags) {
-            $tags = preg_split(" *, *", trim($this->Tags));
-
-            $link = $this->Parent() ? $this->Parent()->Link('tag') : '';
-
-            foreach ($tags as $tag) {
-                $output->push(new ArrayData(array(
-                    'Tag' => Convert::raw2xml($tag),
-                    'Link' => Controller::join_links($link, Convert::raw2url($tag)),
-                    'URLTag' => Convert::raw2url($tag)
-                )));
-            }
-        }
-
-        return $output;
-    }
-
+    
     /**
      * Can the member view this discussion?
      * 

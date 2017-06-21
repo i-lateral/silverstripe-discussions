@@ -1,8 +1,7 @@
 <?php
 
 /**
- * A discussion category is a flag for filtering discussions (similar to
- * tags, but selected by the creator)
+ * A discussion category is a flag for filtering discussions
  *
  * @author i-lateral (http://www.i-lateral.com)
  * @package Discussions

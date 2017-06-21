@@ -32,7 +32,6 @@ en:
   Discussions:
     AddCategory: 'Add Category'
     AddContent: 'And some content (optional)'
-    AddTags: 'Finally, add some tags (optional)'
     All: All
     ApproveReply: 'Approve this reply'
     Blocked: Blocked
@@ -75,7 +74,6 @@ en:
     Save: Save
     StartDiscussion: 'Start new discussion'
     Started: 'I started'
-    Tags: Tags
     ViewFullDiscussion: 'View the full discussion at'
   DiscussionsCategoriesWidget:
     PLURALNAME: 'Discussions Categories Widgets'
@@ -83,17 +81,11 @@ en:
   DiscussionsMenuWidget:
     PLURALNAME: 'Discussions Menu Widgets'
     SINGULARNAME: 'Discussions Menu Widget'
-  DiscussionsTagsWidget:
-    PLURALNAME: 'Discussions Tags Widgets'
-    SINGULARNAME: 'Discussions Tags Widget'
   ReportedDiscussion:
     PLURALNAME: 'Reported Discussions'
     SINGULARNAME: 'Reported Discussion'
   SiteTree:
     PLURALNAME: Pages
     SINGULARNAME: Page
-  TagCloudWidget:
-    LIMIT: 'Limit number of tags'
-    TILE: Title
   Users:
     CANCEL: Cancel

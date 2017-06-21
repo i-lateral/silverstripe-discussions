@@ -86,13 +86,7 @@ class DiscussionHolder_Controller extends Page_Controller
         $member = Member::currentUser();
         $discussions_to_view = new ArrayList();
 
-        if ($tag) {
-            $SQL_tag = Convert::raw2sql($tag);
-
-            $discussions = Discussion::get()
-                ->filter("ParentID", $this->ID)
-                ->where("\"Discussion\".\"Tags\" LIKE '%$SQL_tag%'");
-        } elseif ($category) {
+        if ($category) {
             $discussions = Discussion::get()
                 ->filter(array(
                     "ParentID" => $this->ID,

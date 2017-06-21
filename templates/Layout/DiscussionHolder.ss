@@ -81,13 +81,6 @@
                             </p>
 
                             <p>
-                                <% if $TagsCollection.exists %>
-                                    <strong><% _t("Discussions.Tags", "Tags") %>:</strong>
-                                    <% loop $TagsCollection %>
-                                        <a href="$Link">$Tag</a><% if not $Last %>,<% end_if %>
-                                    <% end_loop %>
-                                <% end_if %>
-
                                 <% if $Categories.exists %>
                                     <strong><% _t("Discussions.Categories", "Categories") %>:</strong>
                                     <% loop $Categories %>

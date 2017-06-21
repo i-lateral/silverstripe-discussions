@@ -23,11 +23,7 @@ class DiscussionForm extends Form
             TextAreaField::create(
                 "Content",
                 _t("Discussions.AddContent", "And some content (optional)")
-            ),
-            TextField::create(
-                "Tags",
-                _t("Discussions.AddTags", "Finally, add some tags (optional)")
-            )->setAttribute("placeholder", "Tag 1, Tag 2")
+            )
         );
 
         if ($categories->exists()) {
