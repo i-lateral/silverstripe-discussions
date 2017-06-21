@@ -22,7 +22,7 @@ if(Discussion::useCMS()) {
 
         private static $has_many = array(
             "Discussions"   => "Discussion",
-            "Categories"    => "DiscussionCategory"
+            "Categories"    => "DiscussionCategory",
         );
 
         private static $many_many = array(

@@ -9,7 +9,8 @@ class Discussion extends DataObject implements PermissionProvider
     );
 
     private static $has_one = array(
-        "Author"    => "Member"
+        "Author"    => "Member",
+        "Parent"    => "DiscussionHolder"
     );
 
     private static $has_many = array(

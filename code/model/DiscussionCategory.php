@@ -14,6 +14,10 @@ class DiscussionCategory extends DataObject
         "URLSegment"    => "Varchar"
     );
 
+    private static $has_one = array(
+        "Holder"   => "DiscussionHolder"
+    );
+
     private static $belongs_many_many = array(
         "Discussions"   => "Discussion"
     );
@@ -29,7 +33,7 @@ class DiscussionCategory extends DataObject
     {
         if (Discussion::useCMS()) {
             return Controller::join_links(
-                $this->Parent()->Link($action),
+                $this->Holder()->Link($action),
                 $this->URLSegment
             );
         } else {
@@ -64,7 +68,7 @@ class DiscussionCategory extends DataObject
     public function canEdit($member = null)
     {
         if(Discussion::useCMS()) {
-            return $this->Parent()->canEdit($member);
+            return $this->Holder()->canEdit($member);
         } else {
             if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
                 return true;
@@ -77,7 +81,7 @@ class DiscussionCategory extends DataObject
     public function canDelete($member = null)
     {
         if(Discussion::useCMS()) {
-            return $this->Parent()->canDelete($member);
+            return $this->Holder()->canDelete($member);
         } else {
             if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
                 return true;
@@ -90,7 +94,7 @@ class DiscussionCategory extends DataObject
     public function canCreate($member = null)
     {
         if(Discussion::useCMS()) {
-            return $this->Parent()->canCreate($member);
+            return $this->Holder()->canCreate($member);
         } else {
             if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
                 return true;
