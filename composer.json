@@ -16,6 +16,7 @@
     },
     "require": {
         "silverstripe/framework": ">=3.2",
+        "silverstripe/cms": ">=3.2",
 		"silverstripe/siteconfig": ">=3.2",
         "silverstripe/comments": "*",
         "i-lateral/silverstripe-sessionmessenger": "*",
@@ -24,8 +25,7 @@
         "ajshort/silverstripe-gridfieldextensions": "*"
     },
     "suggest": {
-        "silverstripe/widgets": "Add widget area support to your discussion pages",
-        "silverstripe/cms": "Add full content manegement to your site",
+        "silverstripe/widgets": "Add widget area support to your discussion pages"
     },
     "extra": {
         "installer-name": "discussions"
