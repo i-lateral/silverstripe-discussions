@@ -78,10 +78,8 @@ class DiscussionForm extends Form
             $form->saveInto($discussion);
             $discussion->AuthorID = $member->ID;
             
-            if (Discussion::useCMS()) {
-                $page = DiscussionHolder::get()->byID($this->controller->ID);
-                $discussion->ParentID = $page->ID;
-            }
+            $page = DiscussionHolder::get()->byID($this->controller->ID);
+            $discussion->ParentID = $page->ID;
 
             $form->saveInto($discussion);
 

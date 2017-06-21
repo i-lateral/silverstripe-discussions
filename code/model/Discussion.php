@@ -70,28 +70,12 @@ class Discussion extends DataObject implements PermissionProvider
      */
     private static $send_emails_from;
 
-    /**
-     * Simple function to determine if we are using the CMS
-     * 
-     * @return Boolean
-     */
-    public static function useCMS() {
-        return (class_exists("SiteTree"));
-    }
-
     public function Link($action = "view")
     {
-        if (self::useCMS()) {
-            return Controller::join_links(
-                $this->Parent()->Link($action),
-                $this->ID
-            );
-        } else {
-            return Controller::join_links(
-                Discussion_Controller::create()->Link($action),
-                $this->ID
-            );
-        }
+        return Controller::join_links(
+            $this->Parent()->Link($action),
+            $this->ID
+        );
     }
 
     /**
@@ -199,7 +183,7 @@ class Discussion extends DataObject implements PermissionProvider
         }
 
         // If member is in discussions moderator groups, return true
-        if (self::useCMS() && $this->Parent()->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
+        if ($this->Parent()->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
             return true;
         }
 
@@ -233,7 +217,7 @@ class Discussion extends DataObject implements PermissionProvider
         }
 
         // If member is in discussions moderator groups, return true
-        if (self::useCMS() && $this->Parent()->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
+        if ($this->Parent()->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
             return true;
         }
 

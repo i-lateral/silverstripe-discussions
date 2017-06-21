@@ -31,17 +31,10 @@ class DiscussionCategory extends DataObject
 
     public function Link($action = "category")
     {
-        if (Discussion::useCMS()) {
-            return Controller::join_links(
-                $this->Holder()->Link($action),
-                $this->URLSegment
-            );
-        } else {
-            return Controller::join_links(
-                Discussion_Controller::create()->Link($action),
-                $this->URLSegment
-            );
-        }
+        return Controller::join_links(
+            $this->Holder()->Link($action),
+            $this->URLSegment
+        );
     }
 
     public function getCMSFields()
@@ -67,40 +60,16 @@ class DiscussionCategory extends DataObject
 
     public function canEdit($member = null)
     {
-        if(Discussion::useCMS()) {
-            return $this->Holder()->canEdit($member);
-        } else {
-            if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
-                return true;
-            } else {
-                return false;
-            }
-        }
+        return $this->Holder()->canEdit($member);
     }
 
     public function canDelete($member = null)
     {
-        if(Discussion::useCMS()) {
-            return $this->Holder()->canDelete($member);
-        } else {
-            if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
-                return true;
-            } else {
-                return false;
-            }
-        }
+        return $this->Holder()->canDelete($member);
     }
 
     public function canCreate($member = null)
     {
-        if(Discussion::useCMS()) {
-            return $this->Holder()->canCreate($member);
-        } else {
-            if (Permission::check(array("ADMIN", "DISCUSSIONS_MANAGER"))) {
-                return true;
-            } else {
-                return false;
-            }
-        }
+        return $this->Holder()->canCreate($member);
     }
 }

@@ -121,11 +121,7 @@ class Discussion_Controller extends Controller
         } elseif ($action == "my") {
             return _t("Discussions.MyTitle", "Discussions I have started");
         } else {
-            if(Discussion::useCMS()) {
-                return $this->data()->Title;
-            } else {
-                return _t("Discussions.Discussions", "Discussions");
-            }
+            return $this->data()->Title;
         }
     }
     
@@ -157,32 +153,23 @@ class Discussion_Controller extends Controller
             $SQL_tag = Convert::raw2sql($tag);
 
             $discussions = Discussion::get();
-            
-            if (Discussion::useCMS()) {
-                $discussions = $discussions->filter("ParentID", $this->ID);
-            }
+            $discussions = $discussions->filter("ParentID", $this->ID);
             
             $discussions = $discussions->where("\"Discussion\".\"Tags\" LIKE '%$SQL_tag%'");
         } elseif ($category) {
             $filter = array(
-                "Categories.ID:ExactMatch" => $category->ID
+                "Categories.ID:ExactMatch" => $category->ID,
+                "ParentID" => $this->ID
             );
-            
-            if (Discussion::useCMS()) {
-                $filter["ParentID"] = $this->ID;
-            }
             
             $discussions = Discussion::get()->filter($filter);
         } elseif ($this->request->param('Action') == 'liked') {
             $discussions = $member->LikedDiscussions();
         } elseif ($this->request->param('Action') == 'my') {
             $filter = array(
-                "AuthorID" => $member->ID
+                "AuthorID" => $member->ID,
+                "ParentID" => $this->ID
             );
-            
-            if (Discussion::useCMS()) {
-                $filter["ParentID"] = $this->ID;
-            }
             
             $discussions = Discussion::get()->filter($filter);
         } else {

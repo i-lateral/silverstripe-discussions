@@ -47,19 +47,17 @@ class DiscussionsGroup extends DataExtension
         }
 
         // Now add these groups to a discussion holder (if one exists)
-        if (Discussion::useCMS()) {
-            foreach (DiscussionHolder::get() as $page) {
-                if (!$page->PosterGroups()->count()) {
-                    $page->PosterGroups()->add($poster);
-                    $page->write();
-                    DB::alteration_message('Added Poster Group to Discussions Holder', 'created');
-                }
+        foreach (DiscussionHolder::get() as $page) {
+            if (!$page->PosterGroups()->count()) {
+                $page->PosterGroups()->add($poster);
+                $page->write();
+                DB::alteration_message('Added Poster Group to Discussions Holder', 'created');
+            }
 
-                if (!$page->ModeratorGroups()->count()) {
-                    $page->ModeratorGroups()->add($moderator);
-                    $page->write();
-                    DB::alteration_message('Added Moderator Group to Discussions Holder', 'created');
-                }
+            if (!$page->ModeratorGroups()->count()) {
+                $page->ModeratorGroups()->add($moderator);
+                $page->write();
+                DB::alteration_message('Added Moderator Group to Discussions Holder', 'created');
             }
         }
     }
