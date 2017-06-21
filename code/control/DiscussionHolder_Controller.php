@@ -12,26 +12,9 @@ class DiscussionHolder_Controller extends Page_Controller
         'report',
         'block',
         'remove',
-        'tag',
         'category',
         'discussionForm',
     );
-
-    /**
-     * Return the currently viewing tag from the URL
-     *
-     * @return string
-     */
-    public function getTag()
-    {
-        if ($this->request->param('Action') == 'tag') {
-            $tag = $this->request->param('ID');
-            $tag = ucwords(str_replace("-", " ", urldecode($tag)));
-            return Convert::raw2xml($tag);
-        } else {
-            return "";
-        }
-    }
 
     /**
      * Return the currently viewing group from the URL
