@@ -55,24 +55,35 @@ if (class_exists('Widget')) {
                 ->first();
 
             $menu = new ArrayList();
+            $member = Member::currentUser();
 
-            $menu->add(new ArrayData(array(
-                "ID"    => 0,
-                "Title" => _t('Discussions.All', "All"),
-                "Link"  => $discussion_holder->Link()
-            )));
+            if ($member && $discussion_holder) {
+                if ($member->canStartDiscussions()) {
+                    $menu->add(new ArrayData(array(
+                        "ID"    => 10,
+                        "Title" => _t('Discussions.StartDiscussion', "Start Discussion"),
+                        "Link"  => $discussion_holder->Link("start")
+                    )));
+                }
 
-            $menu->add(new ArrayData(array(
-                "ID"    => 10,
-                "Title" => _t('Discussions.Liked', "Liked"),
-                "Link"  => $discussion_holder->Link("liked")
-            )));
+                $menu->add(new ArrayData(array(
+                    "ID"    => 10,
+                    "Title" => _t('Discussions.All', "All"),
+                    "Link"  => $discussion_holder->Link()
+                )));
 
-            $menu->add(new ArrayData(array(
-                "ID"    => 20,
-                "Title" => _t('Discussions.Started', "I started"),
-                "Link"  => $discussion_holder->Link("my")
-            )));
+                $menu->add(new ArrayData(array(
+                    "ID"    => 20,
+                    "Title" => _t('Discussions.Liked', "Liked"),
+                    "Link"  => $discussion_holder->Link("liked")
+                )));
+
+                $menu->add(new ArrayData(array(
+                    "ID"    => 30,
+                    "Title" => _t('Discussions.Started', "I started"),
+                    "Link"  => $discussion_holder->Link("my")
+                )));
+            }
 
             $this->extend("updateMenu", $menu);
 

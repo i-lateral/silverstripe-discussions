@@ -13,8 +13,25 @@ class DiscussionHolder_Controller extends Page_Controller
         'block',
         'remove',
         'category',
-        'discussionForm',
+        'DiscussionForm',
     );
+
+    /**
+     * Permissions check to see if the current user can start
+     * discussions
+     *
+     * @return Boolean
+     */
+    public function canStartDiscussions()
+    {
+        $member = Member::currentUser();
+
+        if (!$member) {
+            return false;
+        }
+
+        return $member->canStartDiscussions();
+    }
 
     /**
      * Return the currently viewing group from the URL
@@ -64,7 +81,6 @@ class DiscussionHolder_Controller extends Page_Controller
      */
     public function ViewableDiscussions()
     {
-        $tag = $this->getTag();
         $category = $this->getCategory();
         $member = Member::currentUser();
         $discussions_to_view = new ArrayList();
@@ -105,15 +121,11 @@ class DiscussionHolder_Controller extends Page_Controller
      */
     public function start()
     {
-        $startForm = $this
-            ->discussionForm()
-            ->addExtraClass('forms');
-
-        $vars = array(
-            'Form' => $startForm
-        );
-
-        return $this->customise($vars);
+        $member = Member::currentUser();
+        
+        return $this->customise(array(
+            "Form" => $this->DiscussionForm()->addExtraClass('forms')
+        ));
     }
 
     /**
@@ -124,19 +136,27 @@ class DiscussionHolder_Controller extends Page_Controller
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if ($discussion && $discussion->canEdit($member)) {
-            $startForm = $this
-                ->discussionForm($discussion)
-                ->addExtraClass('forms');
-
-            $vars = array(
-                'Form' => $startForm
-            );
-
-            return $this->customise($vars);
-        } else {
-            return $this->redirect($this->Link());
+        // If not discussion, return a 404
+        if (!$discussion) {
+            return $this->httpError(404);
         }
+
+        // If the current user cannot edit, return a 500
+        if (!$discussion->canEdit($member)) {
+            return $this->httpError(500);
+        }
+
+        $form = $this
+            ->DiscussionForm($discussion)
+            ->addExtraClass('forms');
+
+        $form->loadDataFrom($discussion);
+
+        $vars = array(
+            'Form' => $form
+        );
+
+        return $this->customise($vars);
     }
 
     /**
@@ -283,15 +303,13 @@ class DiscussionHolder_Controller extends Page_Controller
      *
      * @return DiscussionForm
      */
-    public function discussionForm($discussion = null)
+    public function DiscussionForm($discussion = null)
     {
-        $form = DiscussionForm::create($this, 'discussionForm', $discussion);
-
-        if ($this->request->isPOST()) {
-            $form->loadDataFrom($this->request->postVars());
-        } elseif ($discussion != null && $discussion instanceof Discussion) {
-            $form->loadDataFrom($discussion);
-        }
+        $form = DiscussionForm::create(
+            $this,
+            'DiscussionForm',
+            $discussion
+        );
 
         // Extension API
         $this->extend("updateDiscussionForm", $form);

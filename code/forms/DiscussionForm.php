@@ -44,7 +44,13 @@ class DiscussionForm extends Form
             "Content"
         );
 
-        parent::__construct($controller, $name, $fields, $actions, $validator);
+        parent::__construct(
+            $controller,
+            $name,
+            $fields,
+            $actions,
+            $validator
+        );
     }
 
     /**
@@ -55,7 +61,6 @@ class DiscussionForm extends Form
     public function doPost(array $data, Form $form)
     {
         $discussion = null;
-        $new = Discussion::create();
         $member = Member::currentUser();
 
         // Are we editing an existing discussion or creating a new one?
@@ -65,20 +70,15 @@ class DiscussionForm extends Form
             if($existing && $existing->canEdit($member)) {
                 $discussion = $existing;
             }
-        } elseif ($new->canCreate($member)) {
-            $discussion = $new;
+        } elseif ($member && $member->canStartDiscussions()) {
+            $discussion = Injector::inst()->create("Discussion");
+            $discussion->AuthorID = $member->ID;
+            $discussion->ParentID = $this->controller->ID;
         }
 
         // If everything is ok, save our data
         if ($discussion) {
             $form->saveInto($discussion);
-            $discussion->AuthorID = $member->ID;
-            
-            $page = DiscussionHolder::get()->byID($this->controller->ID);
-            $discussion->ParentID = $page->ID;
-
-            $form->saveInto($discussion);
-
             $discussion->write();
 
             return $this->controller->redirect($discussion->Link("view"));
