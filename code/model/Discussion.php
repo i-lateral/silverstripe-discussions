@@ -163,8 +163,8 @@ class Discussion extends DataObject implements PermissionProvider
             return false;
         }
         
-        // If the Author or already liked, disallow
-        if ($member->ID == $this->AuthorID || $this->getLiked($member)) {
+        // If the Author disallow
+        if ($member->ID == $this->AuthorID) {
             return false;
         }
 

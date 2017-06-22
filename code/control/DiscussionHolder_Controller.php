@@ -207,7 +207,7 @@ class DiscussionHolder_Controller extends Page_Controller
     }
 
     /**
-     * Like a particular discussion by ID
+     * Like (or unlike) a particular discussion by ID
      *
      */
     public function like()
@@ -215,47 +215,60 @@ class DiscussionHolder_Controller extends Page_Controller
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if ($discussion && $discussion->canView($member)) {
-            $this->setSessionMessage("message good", _t("Discussions.Liked", "Liked") . " '{$discussion->Title}'");
-            $member->LikedDiscussions()->add($discussion);
-            $member->write();
+        if ($discussion && $discussion->canLike($member)) {
+            // If the user has already liked this, unlike it
+            if ($discussion->getLiked($member)) {
+                $this->setSessionMessage(
+                    "message good success",
+                    _t("Discussions.Unliked", "Unliked") . " '{$discussion->Title}'"
+                );
+                $member->LikedDiscussions()->remove($discussion);
+                $member->write();
+            } else {
+                $this->setSessionMessage(
+                    "message good success",
+                    _t("Discussions.Liked", "Liked") . " '{$discussion->Title}'"
+                );
+                $member->LikedDiscussions()->add($discussion);
+                $member->write();
 
-            $author = $discussion->Author();
+                $author = $discussion->Author();
 
-            // Send a notification (if the author wants it)
-            if ($author && $author->RecieveLikedEmails && $author->Email && ($member->ID != $author->ID)) {
-                if (DiscussionHolder::config()->send_email_from) {
-                    $from = DiscussionHolder::config()->send_email_from;
-                } else {
-                    $from = Email::config()->admin_email;
+                // Send a notification (if the author wants it)
+                if ($author && $author->RecieveLikedEmails && $author->Email && ($member->ID != $author->ID)) {
+                    if (DiscussionHolder::config()->send_email_from) {
+                        $from = DiscussionHolder::config()->send_email_from;
+                    } else {
+                        $from = Email::config()->admin_email;
+                    }
+
+                    $subject = _t(
+                        "Discussions.LikedDiscussionSubject",
+                        "{Nickname} liked your discussion",
+                        null,
+                        array("Nickname" => $member->Nickname)
+                    );
+
+                    // Vars for the emails
+                    $vars = array(
+                        "Title" => $discussion->Title,
+                        "Member" => $member,
+                        'Link' => Controller::join_links(
+                            $this->Link("view"),
+                            $discussion->ID,
+                            "#comments-holder"
+                        )
+                    );
+
+                    $email = new Email($from, $author->Email, $subject);
+                    $email->setTemplate('LikedDiscussionEmail');
+                    $email->populateTemplate($vars);
+                    $email->send();
                 }
-
-                $subject = _t(
-                    "Discussions.LikedDiscussionSubject",
-                    "{Nickname} liked your discussion",
-                    null,
-                    array("Nickname" => $member->Nickname)
-                );
-
-                // Vars for the emails
-                $vars = array(
-                    "Title" => $discussion->Title,
-                    "Member" => $member,
-                    'Link' => Controller::join_links(
-                        $this->Link("view"),
-                        $discussion->ID,
-                        "#comments-holder"
-                    )
-                );
-
-                $email = new Email($from, $author->Email, $subject);
-                $email->setTemplate('LikedDiscussionEmail');
-                $email->populateTemplate($vars);
-                $email->send();
             }
         }
 
-        return $this->redirect(Controller::join_links($this->Link("view"), $discussion->ID));
+        return $this->redirectBack();
     }
 
     /**
