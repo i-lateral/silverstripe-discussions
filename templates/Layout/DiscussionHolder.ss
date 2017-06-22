@@ -25,7 +25,7 @@
                         <div class="discussion units-row">
                             <div class="discussion-content unit-80">
                                 <h2>
-                                    <a href="{$Top.Link('view')}/{$ID}">$Title</a>
+                                    <a href="{$Link('view')}">$Title</a>
                                     <% if $Liked %>
                                         <span class="label label-blue">
                                             <%t Discussions.Liked "Liked" %>
@@ -43,7 +43,13 @@
                                     />
                                 <% end_if %>
 
-                                <p>$Content.FirstParagraph</p>
+                                <p>
+                                    $Content.Summary(50)
+
+                                    <a href="{$Link(view)}">
+                                        <%t Discussions.ReadFullDiscussion "Read Full Discussion" %>
+                                    </a>
+                                </p>
 
                                 <% include DiscussionMeta %>
                             </div>
