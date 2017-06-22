@@ -68,19 +68,19 @@ if (class_exists('Widget')) {
 
                 $menu->add(new ArrayData(array(
                     "ID"    => 10,
-                    "Title" => _t('Discussions.All', "All"),
+                    "Title" => _t('Discussions.AllDiscussions', "All Discussions"),
                     "Link"  => $discussion_holder->Link()
                 )));
 
                 $menu->add(new ArrayData(array(
                     "ID"    => 20,
-                    "Title" => _t('Discussions.Liked', "Liked"),
+                    "Title" => _t('Discussions.DiscussionsILiked', "Discussions I Like"),
                     "Link"  => $discussion_holder->Link("liked")
                 )));
 
                 $menu->add(new ArrayData(array(
                     "ID"    => 30,
-                    "Title" => _t('Discussions.Started', "I started"),
+                    "Title" => _t('Discussions.DiscussionsIStarted', "Discussions I Started"),
                     "Link"  => $discussion_holder->Link("my")
                 )));
             }

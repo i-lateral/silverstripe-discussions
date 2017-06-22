@@ -14,7 +14,7 @@ en:
   Discussions:
     AddCategory: 'Add Category'
     AddSomeContent: 'And some content'
-    All: All
+    AllDiscussions: 'All Discussions'
     BackToDiscussions: 'Back to Discussions'
     By: by
     CannotEditAccount: 'You cannot edit this account'
@@ -23,6 +23,8 @@ en:
     DefaultGroupTitleModerators: 'Discussion Moderators'
     DefaultGroupTitlePosters: 'Discussion Posters'
     Deleted: Deleted
+    DiscussionsILiked: 'Discussions I Like'
+    DiscussionsIStarted: 'Discussions I Started'
     GiveDiscussionTitle: 'Give your discussion a title'
     LikeThis: 'Like this'
     Liked: Liked
@@ -44,7 +46,6 @@ en:
     ReveiveNewDiscussionEmails: 'Recieve emails when a new discussion is started'
     Save: Save
     StartDiscussion: 'Start new discussion'
-    Started: 'I started'
     Update: Update
     ViewFullDiscussion: 'View the full discussion at'
   DiscussionsCategoriesWidget:
