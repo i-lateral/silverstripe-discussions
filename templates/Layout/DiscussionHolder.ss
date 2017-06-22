@@ -1,9 +1,7 @@
 <div class="main container">
     <div class="units-row row">
         <div class="content-container site-content unit typography <% if $SideBarView %>col-md-9 size3of4 unit-75<% end_if %>">
-            <% if $CurrentTag %>
-                <h1>Current tag: "{$CurrentTag}"</h1>
-            <% else_if $CurrentCategory %>
+            <% if $CurrentCategory %>
                 <h1>Current category: "{$CurrentCategory.Title}"</h1>
             <% else %>
                 <h1>$Title</h1>
