@@ -18,25 +18,25 @@ class DiscussionForm extends Form
             HiddenField::create("ID"),
             TextField::create(
                 "Title",
-                _t("Discussions.GiveTitle", "Give your discussion a title")
+                _t("Discussions.GiveDiscussionTitle", "Give your discussion a title")
             ),
             TextAreaField::create(
                 "Content",
-                _t("Discussions.AddContent", "And some content (optional)")
-            )
+                _t("Discussions.AddSomeContent", "And some content")
+            )->setRows(20)
         );
 
         if ($categories->exists()) {
-            $fields->add(CheckboxsetField::create(
+            $fields->add(CheckboxSetField::create(
                 "Categories",
-                _t("Discussions.Categories", "Or Post this under a category? (optional)"),
+                _t("Discussions.PostUnderCategory", "Or post this under a category? (optional)"),
                 $categories->map()
             ));
         }
 
         $actions = new FieldList(
             FormAction::create("doPost")
-                ->setTitle(_t("Discussions.Post", "Post"))
+                ->setTitle(_t("Discussions.StartDiscussion", "StartDiscussion"))
         );
 
         $validator = new RequiredFields(
