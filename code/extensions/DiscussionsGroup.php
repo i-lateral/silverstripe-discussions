@@ -28,7 +28,7 @@ class DiscussionsGroup extends DataExtension
             $poster->Title = _t('Discussions.DefaultGroupTitlePosters', 'Discussion Posters');
             $poster->Sort = 1;
             $poster->write();
-            Permission::grant($poster->ID, 'DISCUSSIONS_POST');
+            Permission::grant($poster->ID, 'DISCUSSIONS_POSTING');
             DB::alteration_message('Discussion Poster Group Created', 'created');
         }
 

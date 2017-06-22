@@ -1,6 +1,9 @@
 ---
 Name: discussionsconfig
 ---
+Users:
+  verification_groups:
+    - discussions-posters
 CommentingController:
   extensions:
     - DiscussionCommentControllerExtension
