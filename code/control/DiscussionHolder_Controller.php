@@ -9,7 +9,6 @@ class DiscussionHolder_Controller extends Page_Controller
         'start',
         'edit',
         'like',
-        'report',
         'block',
         'remove',
         'category',
@@ -208,34 +207,6 @@ class DiscussionHolder_Controller extends Page_Controller
     }
 
     /**
-     * Report a particular discussion by ID. This will add a report object that
-     * is associated with a discussion object and the user that reported it.
-     *
-     */
-    public function report()
-    {
-        $member = Member::currentUser();
-        $discussion = Discussion::get()->byID($this->request->param("ID"));
-
-        if ($discussion && $discussion->canView($member)) {
-            $report = new ReportedDiscussion();
-            $report->DiscussionID = $discussion->ID;
-            $report->ReporterID = $member->ID;
-            $report->write();
-
-            $discussion->Reports()->add($report);
-            $discussion->write();
-
-            $this->setSessionMessage('message', _t("Discussions.Reported", "Reported") . " '{$discussion->Title}'");
-        }
-
-        return $this->redirect(Controller::join_links(
-            $this->Link("view"),
-            $discussion->ID
-        ));
-    }
-
-    /**
      * Like a particular discussion by ID
      *
      */
@@ -285,26 +256,6 @@ class DiscussionHolder_Controller extends Page_Controller
         }
 
         return $this->redirect(Controller::join_links($this->Link("view"), $discussion->ID));
-    }
-
-    /**
-     * Block a particular member by ID.
-     *
-     */
-    public function block()
-    {
-        $member = Member::currentUser();
-        $block = Member::get()->byID($this->request->param("ID"));
-
-        if ($block) {
-            $member->BlockedMembers()->add($block);
-            $member->write();
-            $block->write();
-
-            $this->setSessionMessage("message bad", _t("Discussions.Blocked", "Blocked") . " '{$block->FirstName} {$block->Surname}'");
-        }
-
-        return $this->redirectBack();
     }
 
     /**

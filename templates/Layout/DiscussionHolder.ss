@@ -11,22 +11,16 @@
 
             <% if not $SideBarView && $canStartDiscussions %>
                 <p class="discussions-start-button line row units-row">
-                    <a class="btn btn-big btn-green" href="{$Link('start')}">
-                        <% _t("Discussions.StartDiscussion", "Start new discussion") %>
-                    </a>
+                    <% include StartDiscussionButton %>
                 </p>
             <% end_if %>
 
             <% if $ViewableDiscussions.Count == 0 %>
                 <p>There are currenty no discussions.</p>
 
-                <% if $SideBarView && $canStartDiscussions %>
-                    <p class="discussions-start-button">
-                        <a class="btn btn-big btn-green" href="{$Link('start')}">
-                            <% _t("Discussions.StartDiscussion", "Start new discussion") %>
-                        </a>
-                    </p>
-                <% end_if %>
+                <p class="discussions-start-button">
+                    <% include StartDiscussionButton %>
+                </p>
             <% else %>
                 <div class="discussions">
                     <% loop $ViewableDiscussions %>
@@ -36,12 +30,7 @@
                                     <a href="{$Top.Link('view')}/{$ID}">$Title</a>
                                     <% if $Liked %>
                                         <span class="label label-blue">
-                                            <% _t("Discussions.Liked", "Liked") %>
-                                        </span>
-                                    <% end_if %>
-                                    <% if $Reported %>
-                                        <span class="label label-red">
-                                            <% _t("Discussions.Reported", "Reported") %>
+                                            <%t Discussions.Liked "Liked" %>
                                         </span>
                                     <% end_if %>
                                 </h2>
@@ -56,39 +45,9 @@
                                     />
                                 <% end_if %>
 
-                                <p>
-                                    $Content.Summary(50)
-                                </p>
+                                <p>$Content.FirstParagraph</p>
 
-                                <p>
-                                    <strong>$Author.FirstName $Author.Surname</strong>
-                                    $Created.Ago |
-
-                                    <% if $LikedBy.Count %>
-                                        $LikedBy.Count
-                                        <% if $LikedBy.Count == 1 %>
-                                            Like;
-                                        <% else %>
-                                            Likes;
-                                        <% end_if %>
-                                    <% end_if %>
-
-                                    $Comments.Count
-                                    <% if $Comments.Count == 1 %>
-                                        <% _t("Discussions.Reply", "Reply") %>;
-                                    <% else %>
-                                        <% _t("Discussions.Replies", "Replies") %>;
-                                    <% end_if %>
-                                </p>
-
-                                <p>
-                                    <% if $Categories.exists %>
-                                        <strong><% _t("Discussions.Categories", "Categories") %>:</strong>
-                                        <% loop $Categories %>
-                                            <a href="$Link">$Title</a><% if not $Last %>,<% end_if %>
-                                        <% end_loop %>
-                                    <% end_if %>
-                                </p>
+                                <% include DiscussionMeta %>
                             </div>
                         </div>
 

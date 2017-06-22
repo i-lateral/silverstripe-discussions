@@ -66,8 +66,6 @@ en:
     RemoveReply: 'Remove this reply'
     Replies: Replies
     Reply: Reply
-    ReportAbuse: 'Report abuse'
-    Reported: Reported
     ReveiveLikedEmails: 'Recieve emails when one of my discussions is liked'
     ReveiveLikedReplyEmails: 'Recieve emails when a discussion I like is replied to'
     ReveiveNewDiscussionEmails: 'Recieve emails when a new discussion is started'
@@ -81,9 +79,6 @@ en:
   DiscussionsMenuWidget:
     PLURALNAME: 'Discussions Menu Widgets'
     SINGULARNAME: 'Discussions Menu Widget'
-  ReportedDiscussion:
-    PLURALNAME: 'Reported Discussions'
-    SINGULARNAME: 'Reported Discussion'
   SiteTree:
     PLURALNAME: Pages
     SINGULARNAME: Page

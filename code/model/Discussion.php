@@ -12,10 +12,6 @@ class Discussion extends DataObject implements PermissionProvider
         "Parent"    => "DiscussionHolder"
     );
 
-    private static $has_many = array(
-        "Reports"   => "ReportedDiscussion"
-    );
-
     private static $many_many = array(
         "Categories"=> "DiscussionCategory"
     );
@@ -28,13 +24,11 @@ class Discussion extends DataObject implements PermissionProvider
 
     private static $casting = array(
         "Link"      => "Varchar",
-        "Liked"     => "Boolean",
-        "Reported"  => "Boolean"
+        "Liked"     => "Boolean"
     );
     
     private static $summary_fields = array(
-        "Title",
-        "Reports.Count"
+        "Title"
     );
     
     public function providePermissions()
@@ -97,22 +91,6 @@ class Discussion extends DataObject implements PermissionProvider
         }
     }
 
-    /**
-     * Determine if this discussion has been reported by the current user
-     *
-     * @return boolean
-     */
-    public function getReported()
-    {
-        $member_id = Member::currentUserID();
-
-        if ($this->Reports()->find("ReporterID", $member_id)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
     /**
      * Can the member view this discussion?
      * 
