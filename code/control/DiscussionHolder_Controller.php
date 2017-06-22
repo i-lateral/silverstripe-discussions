@@ -150,6 +150,15 @@ class DiscussionHolder_Controller extends Page_Controller
             ->DiscussionForm($discussion)
             ->addExtraClass('forms');
 
+        // Rename post button on edit
+        $post_button  = $form
+            ->Actions()
+            ->dataFieldByName("action_doPost");
+        
+        if ($post_button) {
+            $post_button->setTitle(_t("Discussions.Update", "Update"));
+        }
+
         $form->loadDataFrom($discussion);
 
         $vars = array(
