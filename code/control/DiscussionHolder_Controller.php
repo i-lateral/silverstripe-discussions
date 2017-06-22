@@ -9,7 +9,7 @@ class DiscussionHolder_Controller extends Page_Controller
         'start',
         'edit',
         'like',
-        'block',
+        'pin',
         'remove',
         'category',
         'DiscussionForm',
@@ -256,6 +256,35 @@ class DiscussionHolder_Controller extends Page_Controller
         }
 
         return $this->redirect(Controller::join_links($this->Link("view"), $discussion->ID));
+    }
+
+    /**
+     * Either pin or unpin a discussion. Pinned discussions are shown at
+     * the top of the list 
+     *
+     */
+    public function pin()
+    {
+        $member = Member::currentUser();
+        $discussion = Discussion::get()
+            ->byID($this->getRequest()->param("ID"));
+
+        if ($discussion && $discussion->canPin($member)) {
+            $this->setSessionMessage(
+                "message good success",
+                _t("Discussions.Pinned", "Pinned") . " '{$discussion->Title}'"
+            );
+
+            if ($discussion->Pinned) {
+                $discussion->Pinned = 0;
+            } else {
+                $discussion->Pinned = 1;
+            }
+
+            $discussion->write();
+        }
+
+        return $this->redirectBack();
     }
 
     /**

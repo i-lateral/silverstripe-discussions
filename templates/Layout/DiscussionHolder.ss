@@ -22,37 +22,42 @@
             <% else %>
                 <div class="discussions">
                     <% loop $ViewableDiscussions %>
-                        <div class="discussion units-row">
-                            <div class="discussion-content unit-80">
-                                <h2>
-                                    <a href="{$Link('view')}">$Title</a>
-                                    <% if $Liked %>
-                                        <span class="label label-blue">
-                                            <%t Discussions.Liked "Liked" %>
-                                        </span>
-                                    <% end_if %>
-                                </h2>
-
-                                <% if $Author.Avatar %>
-                                    <img
-                                        class="avatar"
-                                        style="float: left; margin: 0 1em 1em 0;"
-                                        src="$Author.Avatar.CroppedImage(75,75).URL"
-                                        alt="Avatar for {$Author.Nickname}"
-                                        title="Avatar for {$Author.Nickname}"
-                                    />
+                        <div class="discussion <% if $Pinned %>discussion-pinned alert alert-info<% end_if %>">
+                            <h2>
+                                <a href="{$Link('view')}">$Title</a>
+                                
+                                <% if $Pinned %>
+                                    <span class="small">
+                                        (<%t Discussions.Pinned "Pinned" %>)
+                                    </span>
                                 <% end_if %>
+                                
+                                <% if $Liked %>
+                                    <span class="label label-blue">
+                                        <%t Discussions.Liked "Liked" %>
+                                    </span>
+                                <% end_if %>
+                            </h2>
 
-                                <p>
-                                    $Content.Summary(50)
+                            <% if $Author.Avatar %>
+                                <img
+                                    class="avatar"
+                                    style="float: left; margin: 0 1em 1em 0;"
+                                    src="$Author.Avatar.CroppedImage(75,75).URL"
+                                    alt="Avatar for {$Author.Nickname}"
+                                    title="Avatar for {$Author.Nickname}"
+                                />
+                            <% end_if %>
 
-                                    <a href="{$Link(view)}">
-                                        <%t Discussions.ReadFullDiscussion "Read Full Discussion" %>
-                                    </a>
-                                </p>
+                            <p>
+                                $Content.Summary(50)
 
-                                <% include DiscussionMeta %>
-                            </div>
+                                <a href="{$Link(view)}">
+                                    <%t Discussions.ReadFullDiscussion "Read Full Discussion" %>
+                                </a>
+                            </p>
+
+                            <% include DiscussionMeta %>
                         </div>
 
                         <hr/>

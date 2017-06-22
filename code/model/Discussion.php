@@ -4,7 +4,8 @@ class Discussion extends DataObject implements PermissionProvider
 {
     private static $db = array(
         "Title"     => "Varchar(99)",
-        "Content"   => "Text"
+        "Content"   => "Text",
+        "Pinned"    => "Boolean"
     );
 
     private static $has_one = array(
@@ -20,7 +21,10 @@ class Discussion extends DataObject implements PermissionProvider
         "LikedBy"   => "Member"
     );
 
-    private static $default_sort = "Created DESC";
+    private static $default_sort = array(
+        "Pinned" => "DESC",
+        "Created" => "DESC"
+    );
 
     private static $casting = array(
         "Link"      => "Varchar",
@@ -142,7 +146,7 @@ class Discussion extends DataObject implements PermissionProvider
 
         return false;
     }
-    
+
     /**
      * Can the member like this post?
      * 
@@ -219,6 +223,36 @@ class Discussion extends DataObject implements PermissionProvider
 
         // If member is the author
         if ($this->Author()->ID == $member->ID) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Can the member pin this post? By default posts can only be pinned
+     * by moderators, managers and admins
+     * 
+     * @param $member Member object
+     * @return Boolean
+     */
+    public function canPin($member = null)
+    {
+        if (!$member) {
+            $member = Member::currentUser();
+        }
+
+        if (!$member) {
+            return false;
+        }
+
+        // If correct permission, return true
+        if (Permission::checkMember($member, array("ADMIN", "DISCUSSIONS_MODERATION", "DISCUSSIONS_MANAGER"))) {
+            return true;
+        }
+
+        // If member is in discussions moderator groups, return true
+        if ($this->Parent()->ModeratorGroups()->filter("Members.ID", $member->ID)->exists()) {
             return true;
         }
 

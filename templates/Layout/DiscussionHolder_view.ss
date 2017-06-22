@@ -28,25 +28,29 @@
                 <div class="units-row-end">
                     <p>
                         <% if $canLike %>
-                            <a href="{$Top.Link('like')}/{$ID}" class="btn btn-sm btn-blue btn-info">
+                            <a href="{$Link('like')}" class="btn btn-sm btn-blue btn-info">
                                 <% _t("Discussions.LikeThis", "Like this") %>
                             </a>
                         <% end_if %>
 
-                        <% if not $Author.ID == $CurrentMember.ID %>
-                            <a href="{$Top.Link('block')}/{$Author.ID}" class="btn btn-sm btn-red btn-danger">
-                                Block this person?
+                        <% if $CanPin %>
+                            <a class="btn btn-default btn-sm pinned" href="{$Link('pin')}">
+                                <% if $Pinned %>
+                                    <%t Discussions.UnpinThis "Unpin This" %>
+                                <% else %>
+                                    <%t Discussions.PinThis "Pin This" %>
+                                <% end_if %>
                             </a>
                         <% end_if %>
 
                         <% if $CanDelete %>
-                            <a href="{$Top.Link('remove')}/{$ID}" class="btn btn-sm btn-red btn-danger">
+                            <a href="{$Link('remove')}" class="btn btn-sm btn-red btn-danger">
                                 Delete
                             </a>
                         <% end_if %>
 
                         <% if $CanEdit %>
-                            <a href="{$Top.Link('edit')}/{$ID}" class="btn btn-sm btn-green btn-success">
+                            <a href="{$Link('edit')}" class="btn btn-sm btn-green btn-success">
                                 Edit
                             </a>
                         <% end_if %>
