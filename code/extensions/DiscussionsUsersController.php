@@ -33,7 +33,9 @@ class DiscussionsUsersController extends Extension
         return $this
             ->owner
             ->renderWith(array(
-                "Users_Account",
+                "UserAccount_notificationsettings",
+                "UserAccount_edit",
+                "UserAccount",
                 "Users",
                 "Page"
             ));
@@ -102,16 +104,14 @@ class DiscussionsUsersController extends Extension
             // Save member
             $form->saveInto($member);
             $member->write();
-            $this->owner->setSessionMessage(
-                "message success",
-                _t("Discussions.NotificationSettingsUpdated", "Notification settings updated")
+            $form->sessionMessage(
+                _t("Discussions.NotificationSettingsUpdated", "Notification settings updated"),
+                "good"
             );
-
-            return $this->owner->redirect($this->owner->Link());
         } else {
-            $this->owner->setSessionMessage(
-                "message error",
-                _t("Discussions.CannotEditAccount", "You cannot edit this account")
+            $form->sessionMessage(
+                _t("Discussions.CannotEditAccount", "You cannot edit this account"),
+                "bad"
             );
         }
 

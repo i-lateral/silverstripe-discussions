@@ -4,7 +4,7 @@
  * Page type responsible for holding "discussions" and their comments
  *
  */
-class DiscussionHolder extends Page implements PermissionProvider
+class DiscussionHolder extends Page
 {
 
     /**
@@ -21,7 +21,7 @@ class DiscussionHolder extends Page implements PermissionProvider
 
     private static $has_many = array(
         "Discussions"   => "Discussion",
-        "Categories"    => "DiscussionCategory"
+        "Categories"    => "DiscussionCategory",
     );
 
     private static $many_many = array(
@@ -39,20 +39,32 @@ class DiscussionHolder extends Page implements PermissionProvider
         $add_button = new GridFieldAddNewInlineButton('toolbar-header-left');
         $add_button->setTitle(_t("Discussions.AddCategory", "Add Category"));
 
-        $gridField = new GridField(
-            'Categories',
-            '',
-            $this->Categories(),
-            GridFieldConfig::create()
-                ->addComponent(new GridFieldButtonRow('before'))
-                ->addComponent(new GridFieldToolbarHeader())
-                ->addComponent(new GridFieldTitleHeader())
-                ->addComponent(new GridFieldEditableColumns())
-                ->addComponent(new GridFieldDeleteAction())
-                ->addComponent($add_button)
+        $fields->addFieldToTab(
+            "Root.Main",
+            new GridField(
+                'Categories',
+                '',
+                $this->Categories(),
+                GridFieldConfig::create()
+                    ->addComponent(new GridFieldButtonRow('before'))
+                    ->addComponent(new GridFieldToolbarHeader())
+                    ->addComponent(new GridFieldTitleHeader())
+                    ->addComponent(new GridFieldEditableColumns())
+                    ->addComponent(new GridFieldDeleteAction())
+                    ->addComponent($add_button)
+            ),
+            "Content"
         );
 
-        $fields->addFieldToTab("Root.Main", $gridField, "Content");
+        $fields->addFieldToTab(
+            "Root.Discussions",
+            new GridField(
+                'Discussions',
+                'Discussions',
+                $this->Discussions(),
+                GridFieldConfig_relationEditor::create()
+            )
+        );
 
         $fields->removeByName("Content");
 
@@ -70,12 +82,11 @@ class DiscussionHolder extends Page implements PermissionProvider
         }
         asort($groupsMap);
 
-
         $fields->addFieldToTab(
             "Root.Settings",
             ListboxField::create(
-               "PosterGroups",
-               _t("Discussion.PosterGroups", "Groups that can post")
+                "PosterGroups",
+                _t("Discussion.PosterGroups", "Groups that can post")
             )->setMultiple(true)
             ->setSource($groupsMap)
             ->setValue(null, $this->PosterGroups()),
@@ -85,8 +96,8 @@ class DiscussionHolder extends Page implements PermissionProvider
         $fields->addFieldToTab(
             "Root.Settings",
             ListboxField::create(
-               "ModeratorGroups",
-               _t("Discussion.ModeratorGroups", "Groups that can moderate")
+                "ModeratorGroups",
+                _t("Discussion.ModeratorGroups", "Groups that can moderate")
             )->setMultiple(true)
             ->setSource($groupsMap)
             ->setValue(null, $this->ModeratorGroups()),
@@ -96,23 +107,6 @@ class DiscussionHolder extends Page implements PermissionProvider
         return $fields;
     }
 
-    public function providePermissions()
-    {
-        return array(
-            'DISCUSSIONS_REPLY' => array(
-                'name'      => 'Reply to discussions',
-                'help'      => 'Reply to existing discussions created by users',
-                'category'  => 'Discussions',
-                'sort'      => 90
-            ),
-            'DISCUSSIONS_MODERATION' => array(
-                'name'      => 'Moderate discussions',
-                'help'      => 'Moderate discussions created by users',
-                'category'  => 'Discussions',
-                'sort'      => 100
-            ),
-        );
-    }
 
     public function requireDefaultRecords()
     {
@@ -130,29 +124,6 @@ class DiscussionHolder extends Page implements PermissionProvider
             $page->publish('Stage', 'Live');
             DB::alteration_message('Discussions Holder Created', 'created');
         }
-    }
-
-    public function canStartDiscussions($member = null)
-    {
-        if (!$member) {
-            $member = Member::currentUser();
-        }
-
-        if (!$member) {
-            return false;
-        }
-
-        // If admin, return true
-        if (Permission::check("ADMIN")) {
-            return true;
-        }
-
-        // If member is in discussions moderator groups, return true
-        if ($this->PosterGroups()->filter("Members.ID", $member->ID)->exists()) {
-            return true;
-        }
-
-        return false;
     }
 
     /**

@@ -8,29 +8,35 @@
 class DiscussionForm extends Form
 {
 
-    public function __construct($controller, $name, $discussion = null)
+    public function __construct($controller, $name)
     {
         // Get member and upload path
         $member = Member::currentUser();
+        $categories = $controller->Categories();
 
         $fields = new FieldList(
             HiddenField::create("ID"),
-            TextField::create("Title", _t("Discussions.GiveTitle", "Give your discussion a title")),
-            TextAreaField::create("Content", _t("Discussions.AddContent", "And some content (optional)")),
-            TextField::create("Tags", _t("Discussions.AddTags", "Finally, add some tags (optional)"))
-                ->setAttribute("placeholder", "Tag 1, Tag 2")
+            TextField::create(
+                "Title",
+                _t("Discussions.GiveDiscussionTitle", "Give your discussion a title")
+            ),
+            TextAreaField::create(
+                "Content",
+                _t("Discussions.AddSomeContent", "And some content")
+            )->setRows(20)
         );
 
-        if ($controller->Categories()->exists()) {
-            $fields->add(CheckboxsetField::create(
+        if ($categories->exists()) {
+            $fields->add(CheckboxSetField::create(
                 "Categories",
-                _t("Discussions.Categories", "Or Post this under a category? (optional)"),
-                $controller->Categories()->map()
+                _t("Discussions.PostUnderCategory", "Or post this under a category? (optional)"),
+                $categories->map()
             ));
         }
 
         $actions = new FieldList(
-            FormAction::create("post")->setTitle(_t("Discussions.Post", "Post"))
+            FormAction::create("doPost")
+                ->setTitle(_t("Discussions.StartDiscussion", "StartDiscussion"))
         );
 
         $validator = new RequiredFields(
@@ -38,7 +44,13 @@ class DiscussionForm extends Form
             "Content"
         );
 
-        parent::__construct($controller, $name, $fields, $actions, $validator);
+        parent::__construct(
+            $controller,
+            $name,
+            $fields,
+            $actions,
+            $validator
+        );
     }
 
     /**
@@ -46,38 +58,32 @@ class DiscussionForm extends Form
      *
      * @return Redirect
      */
-    public function post(array $data, Form $form)
+    public function doPost(array $data, Form $form)
     {
         $discussion = null;
-        $page = DiscussionHolder::get()->byID($this->controller->ID);
         $member = Member::currentUser();
 
-        if ($this->controller->canStartDiscussions($member)) {
+        // Are we editing an existing discussion or creating a new one?
+        if (isset($data['ID']) && $data['ID']) {
             // Check if we are editing or creating
-            if (isset($data['ID']) && $data['ID']) {
-                $discussion = Discussion::get()->byID($data['ID']);
+            $existing = Discussion::get()->byID($data['ID']);
+            if($existing && $existing->canEdit($member)) {
+                $discussion = $existing;
             }
-
-            if (!$discussion || $discussion == null) {
-                $discussion = Discussion::create();
-            }
-
-            $form->saveInto($discussion);
+        } elseif ($member && $member->canStartDiscussions()) {
+            $discussion = Injector::inst()->create("Discussion");
             $discussion->AuthorID = $member->ID;
-            $discussion->ParentID = $page->ID;
+            $discussion->ParentID = $this->controller->ID;
+        }
 
+        // If everything is ok, save our data
+        if ($discussion) {
             $form->saveInto($discussion);
-
             $discussion->write();
 
-            $discussion_url = Controller::join_links(
-                $this->controller->Link("view"),
-                $discussion->ID
-            );
-
-            return $this->controller->redirect($discussion_url);
+            return $this->controller->redirect($discussion->Link("view"));
         } else {
-            return $this->controller->httpError(404);
+            return $this->controller->httpError(500);
         }
     }
 }

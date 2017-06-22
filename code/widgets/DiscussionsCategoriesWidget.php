@@ -3,7 +3,7 @@
 if (class_exists('Widget')) {
 
     /**
-     * A list of tags associated with discussions
+     * A list of categories associated with discussions
      *
      * @package discussionforum
      */

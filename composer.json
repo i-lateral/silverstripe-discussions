@@ -15,8 +15,9 @@
         "issues": "http://github.com/i-lateral/silverstripe-discussions/issues"
     },
     "require": {
-        "silverstripe/framework": ">=3.1",
-        "silverstripe/cms": ">=3.1",
+        "silverstripe/framework": ">=3.2",
+        "silverstripe/cms": ">=3.2",
+		"silverstripe/siteconfig": ">=3.2",
         "silverstripe/comments": "*",
         "i-lateral/silverstripe-sessionmessenger": "*",
         "i-lateral/silverstripe-users": "*",

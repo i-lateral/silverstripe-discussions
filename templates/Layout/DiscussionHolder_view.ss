@@ -1,99 +1,76 @@
-<% require css(discussionforum/css/flexslider.css) %>
-
-<% require javascript(discussionforum/thirdparty/jquery/jquery.js) %>
-<% require javascript(discussionforum/javascript/flexslider.js) %>
-<% require javascript(discussionforum/javascript/DiscussionForum.js) %>
-
-
-<div class="units-row">
-    <div class="site-content typography <% if $SideBarView %>unit-75<% end_if %>">
-        <% with $Discussion %>
-            <h1>
-                $Title
-                <% if $Liked %>
-                    <span class="label label-blue">
-                        <% _t("Discussions.Liked", "Liked") %>
-                    </span>
-                <% end_if %>
-                <% if $Reported %>
-                    <span class="label label-red">
-                        <% _t("Discussions.Reported", "Reported") %>
-                    </span>
-                <% end_if %>
-            </h1>
-
-            <% if $Author.Avatar %>
-                <img
-                    class="avatar"
-                    style="float: left; margin: 0 1em 1em 0;"
-                    src="$Author.Avatar.CroppedImage(75,75).URL"
-                    alt="Avatar for {$Author.Nickname}"
-                    title="Avatar for {$Author.Nickname}"
-                />
-            <% end_if %>
-
-            <p>$Content</p>
-
-            <p>
-                <%t Discussions.PostedBy "Posted by" %>
-                <strong>$Author.Nickname</strong>
-                $Created.Ago;
-
-                <% if $LikedBy.Count %>
-                    $LikedBy.Count
-                    <% if $LikedBy.Count == 1 %>
-                        <% _t("Discussions.Like", "Like") %>;
-                    <% else %>
-                        <% _t("Discussions.Likes", "Likes") %>;
+<div class="main container">
+    <div class="units-row row">
+        <div class="content-container site-content unit typography <% if $SideBarView %>col-md-9 size3of4 unit-75<% end_if %>">
+            <% with $Discussion %>
+                <h1 class="col-md-75 unit size3of4">
+                    $Title
+                    <% if $Liked %>
+                        <span class="liked label label-blue">
+                            <% _t("Discussions.Liked", "Liked") %>
+                        </span>
                     <% end_if %>
+                </h1>
+
+                <% include DiscussionMeta %>
+
+                <% if $Author.Avatar %>
+                    <img
+                        class="avatar"
+                        style="float: left; margin: 0 1em 1em 0;"
+                        src="$Author.Avatar.CroppedImage(75,75).URL"
+                        alt="Avatar for {$Author.Nickname}"
+                        title="Avatar for {$Author.Nickname}"
+                    />
                 <% end_if %>
 
-                $Comments.Count
-                <% if $Comments.Count == 1 %>
-                    <% _t("Discussions.Comment", "Comment") %>;
-                <% else %>
-                    <% _t("Discussions.Comments", "Comments") %>;
-                <% end_if %>
-            </p>
+                <p>$Content</p>
 
-            <p>
-                 <% if $TagsCollection.exists %>
-                    <% _t("Discussions.Tags", "Tags") %>:
-                    <% loop $TagsCollection %>
-                        <a href="$Link">$Tag</a><% if $Last %>;<% else %>,<% end_if %>
-                    <% end_loop %>
-                <% end_if %>
+                <div class="units-row-end">
+                    <p>
+                        <% if $canLike %>
+                            <a href="{$Link('like')}" class="btn btn-sm btn-blue btn-info">
+                                <% if $Liked %>
+                                    <% _t("Discussions.UnlikeThis", "Unlike this") %>
+                                <% else %>
+                                    <% _t("Discussions.LikeThis", "Like this") %>
+                                <% end_if %>
+                            </a>
+                        <% end_if %>
 
-                <% if $Categories.exists %>
-                    <% _t("Discussions.Categories", "Categories") %>:
-                    <% loop $Categories %>
-                        <a href="$Link">$Title</a><% if $Last %>;<% else %>,<% end_if %>
-                    <% end_loop %>
-                <% end_if %>
-            </p>
+                        <% if $CanPin %>
+                            <a class="btn btn-default btn-sm pinned" href="{$Link('pin')}">
+                                <% if $Pinned %>
+                                    <%t Discussions.UnpinThis "Unpin This" %>
+                                <% else %>
+                                    <%t Discussions.PinThis "Pin This" %>
+                                <% end_if %>
+                            </a>
+                        <% end_if %>
 
-            <div class="units-row-end">
-                <p class="unit-push-right">
-                    <% if not $Liked %>
-                        <a href="{$Top.Link('like')}/{$ID}" class="btn btn-blue"><% _t("Discussions.LikeThis", "Like this") %></a>
-                    <% end_if %>
+                        <% if $CanDelete %>
+                            <a href="{$Link('remove')}" class="btn btn-sm btn-red btn-danger">
+                                Delete
+                            </a>
+                        <% end_if %>
 
-                    <% if not $Reported %>
-                        <a href="{$Top.Link('report')}/{$ID}" class="btn btn-red"><% _t("Discussions.ReportAbuse", "Report abuse") %></a>
-                    <% end_if %>
+                        <% if $CanEdit %>
+                            <a href="{$Link('edit')}" class="btn btn-sm btn-green btn-success">
+                                Edit
+                            </a>
+                        <% end_if %>
 
-                    <% if not $Author.ID == $CurrentMember.ID %>
-                        <a href="{$Top.Link('block')}/{$Author.ID}" class="btn btn-red">Block this person?</a>
-                    <% end_if %>
+                        <a class="btn btn-red btn-sm btn-default" href="$Up.Link">
+                            <%t Discussions.BackToDiscussions "Back to Discussions" %>
+                        </a>
+                    </p>
+                </div>
 
-                    <% if $CanDelete %><a href="{$Top.Link('remove')}/{$ID}" class="btn btn-red">Delete</a><% end_if %>
-                    <% if $CanEdit %><a href="{$Top.Link('edit')}/{$ID}" class="btn btn-green">Edit</a><% end_if %>
-                </p>
-            </div>
+                <hr />
 
-            $CommentsForm
-        <% end_with %>
+                $CommentsForm
+            <% end_with %>
+        </div>
+
+        <% include DiscussionsSidebar %>
     </div>
-
-    <% include DiscussionsSidebar %>
 </div>

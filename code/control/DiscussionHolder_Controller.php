@@ -3,34 +3,33 @@
 class DiscussionHolder_Controller extends Page_Controller
 {
     public static $allowed_actions = array(
-        'discussionForm',
         'my',
         'liked',
         'view',
         'start',
         'edit',
         'like',
-        'report',
-        'block',
+        'pin',
         'remove',
-        'tag',
-        'category'
+        'category',
+        'DiscussionForm',
     );
 
     /**
-     * Return the currently viewing tag from the URL
+     * Permissions check to see if the current user can start
+     * discussions
      *
-     * @return string
+     * @return Boolean
      */
-    public function getTag()
+    public function canStartDiscussions()
     {
-        if ($this->request->param('Action') == 'tag') {
-            $tag = $this->request->param('ID');
-            $tag = ucwords(str_replace("-", " ", urldecode($tag)));
-            return Convert::raw2xml($tag);
-        } else {
-            return "";
+        $member = Member::currentUser();
+
+        if (!$member) {
+            return false;
         }
+
+        return $member->canStartDiscussions();
     }
 
     /**
@@ -81,18 +80,11 @@ class DiscussionHolder_Controller extends Page_Controller
      */
     public function ViewableDiscussions()
     {
-        $tag = $this->getTag();
         $category = $this->getCategory();
         $member = Member::currentUser();
         $discussions_to_view = new ArrayList();
 
-        if ($tag) {
-            $SQL_tag = Convert::raw2sql($tag);
-
-            $discussions = Discussion::get()
-                ->filter("ParentID", $this->ID)
-                ->where("\"Discussion\".\"Tags\" LIKE '%$SQL_tag%'");
-        } elseif ($category) {
+        if ($category) {
             $discussions = Discussion::get()
                 ->filter(array(
                     "ParentID" => $this->ID,
@@ -128,15 +120,11 @@ class DiscussionHolder_Controller extends Page_Controller
      */
     public function start()
     {
-        $startForm = $this
-            ->discussionForm()
-            ->addExtraClass('forms');
-
-        $vars = array(
-            'Form' => $startForm
-        );
-
-        return $this->customise($vars);
+        $member = Member::currentUser();
+        
+        return $this->customise(array(
+            "Form" => $this->DiscussionForm()->addExtraClass('forms')
+        ));
     }
 
     /**
@@ -147,19 +135,36 @@ class DiscussionHolder_Controller extends Page_Controller
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if ($discussion && $discussion->canEdit($member)) {
-            $startForm = $this
-                ->discussionForm($discussion)
-                ->addExtraClass('forms');
-
-            $vars = array(
-                'Form' => $startForm
-            );
-
-            return $this->customise($vars);
-        } else {
-            return $this->redirect($this->Link());
+        // If not discussion, return a 404
+        if (!$discussion) {
+            return $this->httpError(404);
         }
+
+        // If the current user cannot edit, return a 500
+        if (!$discussion->canEdit($member)) {
+            return $this->httpError(500);
+        }
+
+        $form = $this
+            ->DiscussionForm($discussion)
+            ->addExtraClass('forms');
+
+        // Rename post button on edit
+        $post_button  = $form
+            ->Actions()
+            ->dataFieldByName("action_doPost");
+        
+        if ($post_button) {
+            $post_button->setTitle(_t("Discussions.Update", "Update"));
+        }
+
+        $form->loadDataFrom($discussion);
+
+        $vars = array(
+            'Form' => $form
+        );
+
+        return $this->customise($vars);
     }
 
     /**
@@ -202,35 +207,7 @@ class DiscussionHolder_Controller extends Page_Controller
     }
 
     /**
-     * Report a particular discussion by ID. This will add a report object that
-     * is associated with a discussion object and the user that reported it.
-     *
-     */
-    public function report()
-    {
-        $member = Member::currentUser();
-        $discussion = Discussion::get()->byID($this->request->param("ID"));
-
-        if ($discussion && $discussion->canView($member)) {
-            $report = new ReportedDiscussion();
-            $report->DiscussionID = $discussion->ID;
-            $report->ReporterID = $member->ID;
-            $report->write();
-
-            $discussion->Reports()->add($report);
-            $discussion->write();
-
-            $this->setSessionMessage('message', _t("Discussions.Reported", "Reported") . " '{$discussion->Title}'");
-        }
-
-        return $this->redirect(Controller::join_links(
-            $this->Link("view"),
-            $discussion->ID
-        ));
-    }
-
-    /**
-     * Like a particular discussion by ID
+     * Like (or unlike) a particular discussion by ID
      *
      */
     public function like()
@@ -238,64 +215,86 @@ class DiscussionHolder_Controller extends Page_Controller
         $member = Member::currentUser();
         $discussion = Discussion::get()->byID($this->request->param("ID"));
 
-        if ($discussion && $discussion->canView($member)) {
-            $this->setSessionMessage("message good", _t("Discussions.Liked", "Liked") . " '{$discussion->Title}'");
-            $member->LikedDiscussions()->add($discussion);
-            $member->write();
+        if ($discussion && $discussion->canLike($member)) {
+            // If the user has already liked this, unlike it
+            if ($discussion->getLiked($member)) {
+                $this->setSessionMessage(
+                    "message good success",
+                    _t("Discussions.Unliked", "Unliked") . " '{$discussion->Title}'"
+                );
+                $member->LikedDiscussions()->remove($discussion);
+                $member->write();
+            } else {
+                $this->setSessionMessage(
+                    "message good success",
+                    _t("Discussions.Liked", "Liked") . " '{$discussion->Title}'"
+                );
+                $member->LikedDiscussions()->add($discussion);
+                $member->write();
 
-            $author = $discussion->Author();
+                $author = $discussion->Author();
 
-            // Send a notification (if the author wants it)
-            if ($author && $author->RecieveLikedEmails && $author->Email && ($member->ID != $author->ID)) {
-                if (DiscussionHolder::config()->send_email_from) {
-                    $from = DiscussionHolder::config()->send_email_from;
-                } else {
-                    $from = Email::config()->admin_email;
+                // Send a notification (if the author wants it)
+                if ($author && $author->RecieveLikedEmails && $author->Email && ($member->ID != $author->ID)) {
+                    if (DiscussionHolder::config()->send_email_from) {
+                        $from = DiscussionHolder::config()->send_email_from;
+                    } else {
+                        $from = Email::config()->admin_email;
+                    }
+
+                    $subject = _t(
+                        "Discussions.LikedDiscussionSubject",
+                        "{Nickname} liked your discussion",
+                        null,
+                        array("Nickname" => $member->Nickname)
+                    );
+
+                    // Vars for the emails
+                    $vars = array(
+                        "Title" => $discussion->Title,
+                        "Member" => $member,
+                        'Link' => Controller::join_links(
+                            $this->Link("view"),
+                            $discussion->ID,
+                            "#comments-holder"
+                        )
+                    );
+
+                    $email = new Email($from, $author->Email, $subject);
+                    $email->setTemplate('LikedDiscussionEmail');
+                    $email->populateTemplate($vars);
+                    $email->send();
                 }
-
-                $subject = _t(
-                    "Discussions.LikedDiscussionSubject",
-                    "{Nickname} liked your discussion",
-                    null,
-                    array("Nickname" => $member->Nickname)
-                );
-
-                // Vars for the emails
-                $vars = array(
-                    "Title" => $discussion->Title,
-                    "Member" => $member,
-                    'Link' => Controller::join_links(
-                        $this->Link("view"),
-                        $discussion->ID,
-                        "#comments-holder"
-                    )
-                );
-
-                $email = new Email($from, $author->Email, $subject);
-                $email->setTemplate('LikedDiscussionEmail');
-                $email->populateTemplate($vars);
-                $email->send();
             }
         }
 
-        return $this->redirect(Controller::join_links($this->Link("view"), $discussion->ID));
+        return $this->redirectBack();
     }
 
     /**
-     * Block a particular member by ID.
+     * Either pin or unpin a discussion. Pinned discussions are shown at
+     * the top of the list 
      *
      */
-    public function block()
+    public function pin()
     {
         $member = Member::currentUser();
-        $block = Member::get()->byID($this->request->param("ID"));
+        $discussion = Discussion::get()
+            ->byID($this->getRequest()->param("ID"));
 
-        if ($block) {
-            $member->BlockedMembers()->add($block);
-            $member->write();
-            $block->write();
+        if ($discussion && $discussion->canPin($member)) {
+            $this->setSessionMessage(
+                "message good success",
+                _t("Discussions.Pinned", "Pinned") . " '{$discussion->Title}'"
+            );
 
-            $this->setSessionMessage("message bad", _t("Discussions.Blocked", "Blocked") . " '{$block->FirstName} {$block->Surname}'");
+            if ($discussion->Pinned) {
+                $discussion->Pinned = 0;
+            } else {
+                $discussion->Pinned = 1;
+            }
+
+            $discussion->write();
         }
 
         return $this->redirectBack();
@@ -306,15 +305,13 @@ class DiscussionHolder_Controller extends Page_Controller
      *
      * @return DiscussionForm
      */
-    public function discussionForm($discussion = null)
+    public function DiscussionForm($discussion = null)
     {
-        $form = DiscussionForm::create($this, 'discussionForm', $discussion);
-
-        if ($this->request->isPOST()) {
-            $form->loadDataFrom($this->request->postVars());
-        } elseif ($discussion != null && $discussion instanceof Discussion) {
-            $form->loadDataFrom($discussion);
-        }
+        $form = DiscussionForm::create(
+            $this,
+            'DiscussionForm',
+            $discussion
+        );
 
         // Extension API
         $this->extend("updateDiscussionForm", $form);

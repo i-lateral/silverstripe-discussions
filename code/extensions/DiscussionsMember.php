@@ -41,4 +41,17 @@ class DiscussionsMember extends DataExtension
 
         $this->owner->Nickname = ($this->owner->Nickname) ? $this->owner->Nickname : $this->owner->FirstName;
     }
+
+    /**
+     * Determine if the selected user can create a discussion
+     *
+     * @return Boolean
+     */
+    public function canStartDiscussions()
+    {
+        return Permission::checkMember(
+            $this->owner,
+            array("ADMIN", "DISCUSSIONS_POSTING")
+        );
+    }
 }

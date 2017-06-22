@@ -1,46 +1,40 @@
-<div class="units-row">
-    <div class="site-content typography <% if $SideBarView %>unit-75<% end_if %>">
-        <% if $Tag %>
-            <h1>Current tag: "{$Tag}"</h1>
-        <% else_if $Category %>
-            <h1>Current category: "{$Category.Title}"</h1>
-        <% else %>
-            <h1>$Title</h1>
-        <% end_if %>
+<div class="main container">
+    <div class="units-row row">
+        <div class="content-container site-content unit typography <% if $SideBarView %>col-md-9 size3of4 unit-75<% end_if %>">
+            <% if $CurrentCategory %>
+                <h1>Current category: "{$CurrentCategory.Title}"</h1>
+            <% else %>
+                <h1>$Title</h1>
+            <% end_if %>
 
-        <% if not $SideBarView && $canStartDiscussions %>
-            <p class="discussions-start-button">
-                <a class="btn btn-big btn-green" href="{$Link('start')}">
-                    <% _t("Discussions.StartDiscussion", "Start new discussion") %>
-                </a>
-            </p>
-        <% end_if %>
-
-        <% if $ViewableDiscussions.Count == 0 %>
-            <p>There are currenty no discussions.</p>
-
-            <% if $canStartDiscussions %>
-                <p class="discussions-start-button">
-                    <a class="btn btn-big btn-green" href="{$Link('start')}">
-                        <% _t("Discussions.StartDiscussion", "Start new discussion") %>
-                    </a>
+            <% if not $SideBarView && $canStartDiscussions %>
+                <p class="discussions-start-button line row units-row">
+                    <% include StartDiscussionButton %>
                 </p>
             <% end_if %>
-        <% else %>
-            <div class="discussions">
-                <% loop $ViewableDiscussions %>
-                    <div class="discussion units-row">
-                        <div class="discussion-content unit-80">
+
+            <% if $ViewableDiscussions.Count == 0 %>
+                <p>There are currenty no discussions.</p>
+
+                <p class="discussions-start-button">
+                    <% include StartDiscussionButton %>
+                </p>
+            <% else %>
+                <div class="discussions">
+                    <% loop $ViewableDiscussions %>
+                        <div class="discussion <% if $Pinned %>discussion-pinned alert alert-info<% end_if %>">
                             <h2>
-                                <a href="{$Top.Link('view')}/{$ID}">$Title</a>
                                 <% if $Liked %>
-                                    <span class="label label-blue">
-                                        <% _t("Discussions.Liked", "Liked") %>
+                                    <span title="<%t Discussions.YouLikedThis "You Liked This" %>" class="discussion-liked">
+                                        &#10084;
                                     </span>
                                 <% end_if %>
-                                <% if $Reported %>
-                                    <span class="label label-red">
-                                        <% _t("Discussions.Reported", "Reported") %>
+                                
+                                <a href="{$Link('view')}">$Title</a>
+                                
+                                <% if $Pinned %>
+                                    <span class="small">
+                                        (<%t Discussions.Pinned "Pinned" %>)
                                     </span>
                                 <% end_if %>
                             </h2>
@@ -57,77 +51,48 @@
 
                             <p>
                                 $Content.Summary(50)
+
+                                <a href="{$Link(view)}">
+                                    <%t Discussions.ReadFullDiscussion "Read Full Discussion" %>
+                                </a>
                             </p>
 
-                            <p>
-                                <strong>$Author.FirstName $Author.Surname</strong>
-                                $Created.Ago |
+                            <div class="clearfix"></div>
 
-                                <% if $LikedBy.Count %>
-                                    $LikedBy.Count
-                                    <% if $LikedBy.Count == 1 %>
-                                        Like;
-                                    <% else %>
-                                        Likes;
-                                    <% end_if %>
-                                <% end_if %>
-
-                                $Comments.Count
-                                <% if $Comments.Count == 1 %>
-                                    <% _t("Discussions.Reply", "Reply") %>;
-                                <% else %>
-                                    <% _t("Discussions.Replies", "Replies") %>;
-                                <% end_if %>
-                            </p>
-
-                            <p>
-                                <% if $TagsCollection.exists %>
-                                    <strong><% _t("Discussions.Tags", "Tags") %>:</strong>
-                                    <% loop $TagsCollection %>
-                                        <a href="$Link">$Tag</a><% if not $Last %>,<% end_if %>
-                                    <% end_loop %>
-                                <% end_if %>
-
-                                <% if $Categories.exists %>
-                                    <strong><% _t("Discussions.Categories", "Categories") %>:</strong>
-                                    <% loop $Categories %>
-                                        <a href="$Link">$Title</a><% if not $Last %>,<% end_if %>
-                                    <% end_loop %>
-                                <% end_if %>
-                            </p>
+                            <% include DiscussionMeta %>
                         </div>
-                    </div>
 
-                    <hr/>
-                <% end_loop %>
+                        <hr/>
+                    <% end_loop %>
 
-                <% with $ViewableDiscussions %>
-                    <% if $MoreThanOnePage %>
-                        <ul class="pagination">
-                            <% if $NotFirstPage %>
-                                <li><a class="prev" href="$PrevLink">Prev</a></li>
-                            <% end_if %>
-                            <% loop $Pages %>
-                                <% if $CurrentBool %>
-                                    <li><span>$PageNum</span></li>
-                                <% else %>
-                                    <% if $Link %>
-                                        <li><a href="$Link">$PageNum</a></li>
-                                    <% else %>
-                                        <li>...</li>
-                                    <% end_if %>
+                    <% with $ViewableDiscussions %>
+                        <% if $MoreThanOnePage %>
+                            <ul class="pagination">
+                                <% if $NotFirstPage %>
+                                    <li><a class="prev" href="$PrevLink">Prev</a></li>
                                 <% end_if %>
-                                <% end_loop %>
-                            <% if $NotLastPage %>
-                                <li><a class="next" href="$NextLink">Next</a></li>
-                            <% end_if %>
-                        </ul>
-                    <% end_if %>
-                <% end_with %>
+                                <% loop $Pages %>
+                                    <% if $CurrentBool %>
+                                        <li><span>$PageNum</span></li>
+                                    <% else %>
+                                        <% if $Link %>
+                                            <li><a href="$Link">$PageNum</a></li>
+                                        <% else %>
+                                            <li>...</li>
+                                        <% end_if %>
+                                    <% end_if %>
+                                    <% end_loop %>
+                                <% if $NotLastPage %>
+                                    <li><a class="next" href="$NextLink">Next</a></li>
+                                <% end_if %>
+                            </ul>
+                        <% end_if %>
+                    <% end_with %>
 
-            </div>
-        <% end_if %>
+                </div>
+            <% end_if %>
+        </div>
+
+        <% include DiscussionsSidebar %>
     </div>
-
-    <% include DiscussionsSidebar %>
 </div>

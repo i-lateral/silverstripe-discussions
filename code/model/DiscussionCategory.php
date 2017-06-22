@@ -1,8 +1,7 @@
 <?php
 
 /**
- * A discussion category is a flag for filtering discussions (similar to
- * tags, but selected by the creator)
+ * A discussion category is a flag for filtering discussions
  *
  * @author i-lateral (http://www.i-lateral.com)
  * @package Discussions
@@ -15,7 +14,7 @@ class DiscussionCategory extends DataObject
     );
 
     private static $has_one = array(
-        "Parent" => "DiscussionHolder"
+        "Holder"   => "DiscussionHolder"
     );
 
     private static $belongs_many_many = array(
@@ -29,10 +28,10 @@ class DiscussionCategory extends DataObject
 
     private static $default_sort = "Title ASC";
 
-    public function Link()
+    public function Link($action = "category")
     {
         return Controller::join_links(
-            $this->Parent()->Link("category"),
+            $this->Holder()->Link($action),
             $this->URLSegment
         );
     }
@@ -60,16 +59,16 @@ class DiscussionCategory extends DataObject
 
     public function canEdit($member = null)
     {
-        return $this->Parent()->canEdit($member);
+        return $this->Holder()->canEdit($member);
     }
 
     public function canDelete($member = null)
     {
-        return $this->Parent()->canDelete($member);
+        return $this->Holder()->canDelete($member);
     }
 
     public function canCreate($member = null)
     {
-        return $this->Parent()->canCreate($member);
+        return $this->Holder()->canCreate($member);
     }
 }

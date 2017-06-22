@@ -1,9 +1,11 @@
-<div class="units-row">
-    <div class="site-content typography <% if $SideBarView %>unit-75<% end_if %>">
-        <h1>$Title</h1>
+<div class="main container">
+    <div class="units-row row">
+        <div class="content-container site-content unit typography <% if $SideBarView %>col-md-9 size3of4 unit-75<% end_if %>">
+            <h1>$Title</h1>
 
-        $Form
+            $Form
+        </div>
+
+        <% include DiscussionsSidebar %>
     </div>
-
-    <% include DiscussionsSidebar %>
 </div>
