@@ -57,6 +57,8 @@
                                 </a>
                             </p>
 
+                            <div class="clearfix"></div>
+
                             <% include DiscussionMeta %>
                         </div>
 
