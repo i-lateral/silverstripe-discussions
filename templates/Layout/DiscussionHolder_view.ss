@@ -29,7 +29,7 @@
                     <p>
                         <% if $canLike %>
                             <a href="{$Link('like')}" class="btn btn-sm btn-blue btn-info">
-                                <% if $GetLiked %>
+                                <% if $Liked %>
                                     <% _t("Discussions.UnlikeThis", "Unlike this") %>
                                 <% else %>
                                     <% _t("Discussions.LikeThis", "Like this") %>

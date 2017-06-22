@@ -24,17 +24,17 @@
                     <% loop $ViewableDiscussions %>
                         <div class="discussion <% if $Pinned %>discussion-pinned alert alert-info<% end_if %>">
                             <h2>
+                                <% if $Liked %>
+                                    <span title="<%t Discussions.YouLikedThis "You Liked This" %>" class="discussion-liked">
+                                        &#10084;
+                                    </span>
+                                <% end_if %>
+                                
                                 <a href="{$Link('view')}">$Title</a>
                                 
                                 <% if $Pinned %>
                                     <span class="small">
                                         (<%t Discussions.Pinned "Pinned" %>)
-                                    </span>
-                                <% end_if %>
-                                
-                                <% if $Liked %>
-                                    <span class="label label-blue">
-                                        <%t Discussions.Liked "Liked" %>
                                     </span>
                                 <% end_if %>
                             </h2>
