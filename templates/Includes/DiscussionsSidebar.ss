@@ -1,5 +1,5 @@
 <% if SideBarView %>
-    <div class="discussions-sidebar unit-25 typography">
+    <div class="discussions-sidebar unit-25 col-md-3 size1of4 typography">
         <% if $canStartDiscussions %>
             <p class="discussions-start-button">
                 <a class="btn btn-big btn-green" href="{$Link('start')}">
