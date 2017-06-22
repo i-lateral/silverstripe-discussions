@@ -39,20 +39,32 @@ class DiscussionHolder extends Page
         $add_button = new GridFieldAddNewInlineButton('toolbar-header-left');
         $add_button->setTitle(_t("Discussions.AddCategory", "Add Category"));
 
-        $gridField = new GridField(
-            'Categories',
-            '',
-            $this->Categories(),
-            GridFieldConfig::create()
-                ->addComponent(new GridFieldButtonRow('before'))
-                ->addComponent(new GridFieldToolbarHeader())
-                ->addComponent(new GridFieldTitleHeader())
-                ->addComponent(new GridFieldEditableColumns())
-                ->addComponent(new GridFieldDeleteAction())
-                ->addComponent($add_button)
+        $fields->addFieldToTab(
+            "Root.Main",
+            new GridField(
+                'Categories',
+                '',
+                $this->Categories(),
+                GridFieldConfig::create()
+                    ->addComponent(new GridFieldButtonRow('before'))
+                    ->addComponent(new GridFieldToolbarHeader())
+                    ->addComponent(new GridFieldTitleHeader())
+                    ->addComponent(new GridFieldEditableColumns())
+                    ->addComponent(new GridFieldDeleteAction())
+                    ->addComponent($add_button)
+            ),
+            "Content"
         );
 
-        $fields->addFieldToTab("Root.Main", $gridField, "Content");
+        $fields->addFieldToTab(
+            "Root.Discussions",
+            new GridField(
+                'Discussions',
+                'Discussions',
+                $this->Discussions(),
+                GridFieldConfig_relationEditor::create()
+            )
+        );
 
         $fields->removeByName("Content");
 
