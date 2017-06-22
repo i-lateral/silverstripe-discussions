@@ -2,7 +2,7 @@
     <em>$Created.Ago</em>
 
     <% if $Author.Nickname %>
-        <%t Discussion.By "by" %>
+        <%t Discussions.By "by" %>
         <strong>$Author.Nickname</strong>
     <% end_if %>
 

@@ -1,3 +1,3 @@
 <a class="btn btn-big btn-lg  btn-green" href="{$Link('start')}">
-    <%t Discussions.StartDiscussion "Start new discussion") %>
+    <%t Discussions.StartDiscussion "Start new discussion" %>
 </a>
