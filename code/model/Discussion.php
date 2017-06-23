@@ -187,6 +187,10 @@ class Discussion extends DataObject implements PermissionProvider
             $member = Member::currentUser();
         }
 
+        if (!$member) {
+            return false;
+        }
+
         // If admin, return true
         if (Permission::check(array("ADMIN", "DISCUSSIONS_POSTING"))) {
             return true;
@@ -209,6 +213,10 @@ class Discussion extends DataObject implements PermissionProvider
     {
         if (!$member) {
             $member = Member::currentUser();
+        }
+
+        if (!$member) {
+            return false;
         }
 
         // If admin, return true
@@ -257,17 +265,6 @@ class Discussion extends DataObject implements PermissionProvider
         }
 
         return false;
-    }
-
-    /**
-     * Check if members who liked this would like a notification
-     */
-    public function onBeforeWrite()
-    {
-        parent::onBeforeWrite();
-
-        foreach ($this->LikedBy() as $member) {
-        }
     }
 
     /**
