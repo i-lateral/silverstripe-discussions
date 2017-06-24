@@ -95,6 +95,76 @@ class Discussion extends DataObject implements PermissionProvider
         }
     }
 
+        /**
+     * Customised comments interface for discussions, this allows us
+     * to customise commenting explicitly for discussions without
+     * altering commenting functionality for the rest of the site.
+     * 
+     * Includes the CommentAddForm and the composition of the comments
+     * display.
+     *
+     * To customize the html see templates/CommentInterface.ss or
+     * extend this function with your own extension.
+     *
+     */
+    public function CommentsForm()
+    {
+        // Check if enabled
+        $enabled = $this->getCommentsEnabled();
+
+        if ($enabled && $this->owner->getCommentsOption('include_js')) {
+            Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+            Requirements::javascript(THIRDPARTY_DIR . '/jquery-entwine/dist/jquery.entwine-dist.js');
+            Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/lib/jquery.form.js');
+            Requirements::javascript(COMMENTS_THIRDPARTY . '/jquery-validate/jquery.validate.min.js');
+            Requirements::add_i18n_javascript('comments/javascript/lang');
+            Requirements::javascript('comments/javascript/CommentsInterface.js');
+        }
+
+        $controller = CommentingController::create();
+        $controller->setOwnerRecord($this);
+        $controller->setBaseClass($this->ClassName);
+        $controller->setOwnerController(Controller::curr());
+
+        $moderatedSubmitted = Session::get('CommentsModerated');
+        Session::clear('CommentsModerated');
+
+        $form = ($enabled) ? $controller->CommentsForm() : false;
+
+        // Customise the comments form to be more suitable for
+        // discussions. We remove the URL field and set the name
+        // To use the member's nickname (and be hidden)
+        if ($form) {
+            $member = Member::currentUser();
+            $fields = $form->Fields();
+            
+            $fields->removeByName("URL");
+            $fields->removeByName("NameView");
+
+            $name_field = HiddenField::create("Name");
+
+            if ($member->Nickname) {
+                $name_field->setValue($member->Nickname);
+            } else {
+                $name_field->setValue($member->getName());                
+            }
+
+            $fields->push($name_field);
+
+            $this->extend("updateDiscussionCommentsForm", $form);
+        }
+
+        // a little bit all over the show but to ensure a slightly easier upgrade for users
+        // return back the same variables as previously done in comments
+        return $this
+            ->owner
+            ->customise(array(
+                'AddCommentForm' => $form,
+                'ModeratedSubmitted' => $moderatedSubmitted,
+            ))
+            ->renderWith('DiscussionsCommentsInterface');
+    }
+
     /**
      * Can the member view this discussion?
      * 
