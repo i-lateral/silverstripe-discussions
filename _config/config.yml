@@ -4,6 +4,15 @@ Name: discussionsconfig
 Users:
   verification_groups:
     - discussions-posters
+
+Discussion:
+  extensions:
+    - CommentsExtension
+  comments:
+    require_login: true
+    required_permission: "DISCUSSIONS_POSTING"
+    order_comments_by: '"Created" ASC'
+
 CommentingController:
   extensions:
     - DiscussionCommentControllerExtension
