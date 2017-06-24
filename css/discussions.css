@@ -1,0 +1,56 @@
+.discussions .comments-holder-container {
+  clear: both;
+}
+.discussions .comments-holder-container .comments-list {
+  margin: 0;
+  padding: 0;
+}
+.discussions .comments-holder-container .no-comments-yet {
+  display: inline-block;
+  margin-top: 10px;
+}
+.discussions .comment {
+  clear: both;
+  list-style-type: none;
+  overflow: hidden;
+  padding: 20px 0 20px 0;
+  position: relative;
+}
+.discussions .comment.spam .comment-text {
+  border: 1px dashed orange;
+}
+.discussions .comment img.avatar {
+  float: left;
+  margin: 20px;
+  border: none;
+}
+.discussions .comment .comment-text {
+  border: 1px solid #ddd;
+  padding: 0 20px;
+  min-height: 10em;
+  white-space: pre;
+  white-space: pre-wrap;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+.discussions .comment .comment-text p:last-child {
+  margin-bottom: 0;
+}
+.discussions .comment .comment-replies-container {
+  clear: both;
+  padding-left: 10px;
+  margin: 80px 0 0 0;
+  border-left: 1px dashed #999;
+}
+.discussions .comment .comment-replies-container .comment-reply-form-holder {
+  padding: 0 10px;
+}
+.discussions .comment .comment-replies-container .comment-replies-holder {
+  padding: 0 0 0 10px;
+}
+.discussions .comment-action-links {
+  margin: 20px 0 10px;
+}
+.discussions .comment-action-links a:not(:last-child) {
+  margin-right: 12px;
+}

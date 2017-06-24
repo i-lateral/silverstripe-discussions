@@ -22,7 +22,7 @@
 
 		<hr />
 
-		<div class="post-comments-form">
+		<div id="discussion-post-reply" class="post-comments-form">
 			<h4><% _t('Discussions.PostAReply','Post a Reply') %></h4>
 
 			<% if $AddCommentForm %>
@@ -46,10 +46,5 @@
 				<a href="$DeleteAllLink"><% _t('CommentsInterface_ss.DELETEALLCOMMENTS','Delete all comments on this page') %></a>
 			</p>
 		<% end_if %>
-
-		<p class="commenting-rss-feed">
-			<a href="$CommentRSSLinkPage"><% _t('CommentsInterface_ss.RSSFEEDCOMMENTS', 'RSS feed for comments on this page') %></a> |
-			<a href="$CommentRSSLink"><% _t('CommentsInterface_ss.RSSFEEDALLCOMMENTS', 'RSS feed for all comments') %></a>
-		</p>
 	</div>
 <% end_if %>

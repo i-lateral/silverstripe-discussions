@@ -24,6 +24,10 @@ class DiscussionForm extends Form
                 "Content",
                 _t("Discussions.AddSomeContent", "And some content")
             )->setRows(20)
+            ->setDescription(_t(
+                "Discussions.URLsAutomaticallyConverted",
+                "URLs will be converted to links, images or video embeds automatically"
+            ))
         );
 
         if ($categories->exists()) {

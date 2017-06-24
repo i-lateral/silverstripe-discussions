@@ -151,6 +151,21 @@ class Discussion extends DataObject implements PermissionProvider
 
             $fields->push($name_field);
 
+            // Customise comments field
+            $comments_field = $fields->dataFieldByName("Comment");
+
+            if ($comments_field) {
+                $comments_field
+                    ->setTitle(_t(
+                        "Discussions.EnterYourComments",
+                        "Enter Your Comments"
+                    ))
+                    ->setDescription(_t(
+                        "Discussions.URLsAutomaticallyConverted",
+                        "URLs will be converted to links, images or video embeds automatically"
+                    ));
+            }
+
             $this->extend("updateDiscussionCommentsForm", $form);
         }
 

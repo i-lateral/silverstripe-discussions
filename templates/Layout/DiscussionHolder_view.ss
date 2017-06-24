@@ -1,6 +1,8 @@
+<% require themedCSS('discussions', 'discussions') %>
+
 <div class="main container">
     <div class="units-row row">
-        <div class="content-container site-content unit typography <% if $SideBarView %>col-md-9 size3of4 unit-75<% end_if %>">
+        <div class="discussions discussions-view content-container site-content unit typography <% if $SideBarView %>col-md-9 size3of4 unit-75<% end_if %>">
             <% with $Discussion %>
                 <h1 class="col-md-75 unit size3of4">
                     $Title
@@ -27,6 +29,10 @@
 
                 <div class="units-row-end">
                     <p>
+                        <a class="btn btn-red btn-sm btn-default" href="$Up.Link">
+                            <%t Discussions.BackToDiscussions "Back to Discussions" %>
+                        </a>
+
                         <% if $canLike %>
                             <a href="{$Link('like')}" class="btn btn-sm btn-blue btn-info">
                                 <% if $Liked %>
@@ -46,10 +52,13 @@
                                 <% end_if %>
                             </a>
                         <% end_if %>
-
-                        <% if $CanDelete %>
-                            <a href="{$Link('remove')}" class="btn btn-sm btn-red btn-danger">
-                                Delete
+                        
+                        <% if $CommentsEnabled %>
+                            <a class="btn btn-sm btn-default" href="$CommentRSSLinkPage">
+                                <% _t('Discussions.CommentsFeed', 'Comments Feed') %>
+                            </a>
+                            <a href="{$Link('view')}#discussion-post-reply" class="btn btn-sm btn-green btn-success">
+                                <% _t('Discussions.PostAReply', 'Post a Reply') %>
                             </a>
                         <% end_if %>
 
@@ -59,9 +68,11 @@
                             </a>
                         <% end_if %>
 
-                        <a class="btn btn-red btn-sm btn-default" href="$Up.Link">
-                            <%t Discussions.BackToDiscussions "Back to Discussions" %>
-                        </a>
+                        <% if $CanDelete %>
+                            <a href="{$Link('remove')}" class="btn btn-sm btn-red btn-danger">
+                                Delete
+                            </a>
+                        <% end_if %>
                     </p>
                 </div>
 
