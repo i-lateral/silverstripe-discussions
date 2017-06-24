@@ -23,7 +23,7 @@
                     />
                 <% end_if %>
 
-                <p>$Content</p>
+                <p>$Content.Parse(DiscussionContentParser)</p>
 
                 <div class="units-row-end">
                     <p>
